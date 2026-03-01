@@ -1301,9 +1301,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
 
   // Use proxy in development, full URL in production
-  const API_BASE_URL = process.env.NODE_ENV === 'development' 
-    ? '/api'
-    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
+  // const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  //   ? '/api'
+  //   : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+
 
   // Fetch products from backend
   const fetchProducts = async () => {

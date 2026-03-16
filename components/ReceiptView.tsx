@@ -455,7 +455,7 @@ export default function ReceiptView() {
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: "Beauty Store Receipt",
-          text: `Receipt for $${selectedSale?.total.toFixed(2)}`,
+          text: `Receipt for MMK-${selectedSale?.total.toFixed(2)}`,
           files: [file],
         })
         setSnackbar({ open: true, message: "Receipt shared successfully", severity: "success" })
@@ -533,7 +533,7 @@ export default function ReceiptView() {
                   {formatDate(sale.date)}
                 </Typography>
                 <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
-                  ${sale.total.toFixed(2)}
+                  MMK{sale.total.toFixed(2)}
                 </Typography>
                 <Chip
                   label={`${sale.items.length} items`}
@@ -595,10 +595,10 @@ export default function ReceiptView() {
               {/* Receipt Header */}
               <Box sx={{ textAlign: "center", mb: 2.5 }}>
                 <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-                  <AutoAwesomeIcon sx={{ fontSize: 32, color: "#B5436E" }} />
+                   <img src="/Media.jpg" alt="Media Capabilities" width={100} height={100} />
                 </Box>
                 <Typography variant="h6" fontWeight={800} sx={{ color: "#2D1520", letterSpacing: "-0.025em" }}>
-                  Glow Beauty
+                  Blush & Glow
                 </Typography>
                 <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block", mt: 0.25, fontSize: "0.65rem" }}>
                   Skincare & Cosmetics
@@ -659,7 +659,7 @@ export default function ReceiptView() {
                         {item.product.name}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-                        @ ${item.product.price.toFixed(2)}
+                        @ MMK{item.product.price.toFixed(2)}
                       </Typography>
                     </Box>
                     <Typography
@@ -673,7 +673,7 @@ export default function ReceiptView() {
                       fontWeight={700}
                       sx={{ color: "#2D1520", width: 70, textAlign: "right" }}
                     >
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      MMK{(item.product.price * item.quantity).toFixed(2)}
                     </Typography>
                   </Box>
                   {idx < selectedSale.items.length - 1 && (
@@ -691,7 +691,7 @@ export default function ReceiptView() {
                   Subtotal
                 </Typography>
                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-                  ${selectedSale.total.toFixed(2)}
+                  MMK{selectedSale.total.toFixed(2)}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
@@ -699,7 +699,7 @@ export default function ReceiptView() {
                   Tax
                 </Typography>
                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-                  $0.00
+                  MMK0.00
                 </Typography>
               </Box>
               <Box
@@ -716,7 +716,7 @@ export default function ReceiptView() {
                   Total
                 </Typography>
                 <Typography variant="subtitle1" fontWeight={800} sx={{ color: "#B5436E" }}>
-                  ${selectedSale.total.toFixed(2)}
+                  MMK{selectedSale.total.toFixed(2)}
                 </Typography>
               </Box>
 
@@ -730,7 +730,7 @@ export default function ReceiptView() {
                   variant="caption"
                   sx={{ color: "#C4A3AF", display: "block", mt: 1, fontWeight: 500 }}
                 >
-                  Powered by Glow Beauty
+                  Powered by Blush & Glow
                 </Typography>
               </Box>
             </Box>

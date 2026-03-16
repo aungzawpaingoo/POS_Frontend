@@ -86,7 +86,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Glow Beauty',
+    title: 'Blush & Glow',
   },
   icons: {
     icon: [

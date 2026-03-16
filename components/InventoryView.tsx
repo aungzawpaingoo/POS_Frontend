@@ -631,6 +631,7 @@ export default function InventoryView() {
           sx={{
             minWidth: 130,
             flex: 1,
+            // background: "linear-gradient(135deg, #B5436E 0%, #8C2A52 100%)",
             background: "linear-gradient(135deg, #B5436E 0%, #8C2A52 100%)",
             borderRadius:0.3,
             color: "white",
@@ -650,7 +651,7 @@ export default function InventoryView() {
           sx={{
             minWidth: 130,
             flex: 1,
-            background: "linear-gradient(135deg, #2D8B6F 0%, #1E6B53 100%)",
+            background: "black",
             color: "white",
             borderRadius:0.3,
             border: "none",
@@ -665,7 +666,7 @@ export default function InventoryView() {
             </Typography>
           </CardContent>
         </Card>
-        <Card
+        {/* <Card
           sx={{
             minWidth: 130,
             flex: 1,
@@ -685,7 +686,7 @@ export default function InventoryView() {
               {lowStockCount}
             </Typography>
           </CardContent>
-        </Card>
+        </Card> */}
       </Box>
 
       {/* Stock Value Banner */}
@@ -707,7 +708,7 @@ export default function InventoryView() {
           </Typography>
         </Box>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#2D1520" }}>
-          ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          MMK{totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Typography>
       </Box>
 
@@ -791,7 +792,7 @@ export default function InventoryView() {
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                       <Typography variant="body1" sx={{ fontWeight: 700, color: "#2D1520" }}>
-                        ${product.price.toFixed(2)}
+                        MMK{product.price.toFixed(2)}
                       </Typography>
                       <Chip
                         label={`${product.stock} in stock`}
@@ -854,7 +855,7 @@ export default function InventoryView() {
                 required
                 size="small"
                 disabled={isSubmitting}
-                slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }}
+                slotProps={{ input: { startAdornment: <InputAdornment position="start">MMK</InputAdornment> } }}
               />
               <TextField
                 label="Stock"

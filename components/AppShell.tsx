@@ -46,15 +46,15 @@ export default function AppShell() {
         }}
       >
         <Toolbar sx={{ minHeight: "56px !important", px: 2 }}>
-          <AutoAwesomeIcon sx={{ color: "#B5436E", mr: 1, fontSize: 26 }} />
-          <Typography variant="h6" sx={{ fontWeight: 800, color: "#2D1520", fontSize: "1.1rem", letterSpacing: "-0.025em" }}>
-            y
-          </Typography>
-          <Box sx={{ flex: 1 }} />
-          <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 500 }}>
-            {tabTitles[activeTab]}
-          </Typography>
-        </Toolbar>
+  <img src="/Media.jpg" alt="Media Capabilities" width={40 } height={40} />
+  <Typography variant="body2" sx={{ fontWeight: 800, color: "#2D1520", fontSize: "1rem", letterSpacing: "-0.025em" }}>
+    Blush & Glow
+  </Typography>
+  <Box sx={{ flex: 1 }} />
+  <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 500 }}>
+    {tabTitles[activeTab]}
+  </Typography>
+</Toolbar>
       </AppBar>
 
       {/* Main Content */}

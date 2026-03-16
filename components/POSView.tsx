@@ -594,7 +594,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
             </Typography>
           </Box>
           <Typography variant="subtitle1" fontWeight={800}>
-            ${cartTotal.toFixed(2)}
+            MMK{cartTotal.toFixed(2)}
           </Typography>
         </Box>
       )}
@@ -669,7 +669,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
                       </Typography>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
                         <Typography variant="body1" fontWeight={800} color="primary">
-                          ${product.price.toFixed(2)}
+                          MMK{product.price.toFixed(2)}
                         </Typography>
                         <Chip
                           label={`${remainingStock} left`}
@@ -812,12 +812,12 @@ export default function POSView({ onCheckout }: POSViewProps) {
                       {item.product.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      ${item.product.price.toFixed(2)} x {item.quantity}
+                      MMK{item.product.price.toFixed(2)} x {item.quantity}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Typography variant="body2" fontWeight={800} sx={{ minWidth: 60, textAlign: "right" }}>
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      MMK{(item.product.price * item.quantity).toFixed(2)}
                     </Typography>
                     <IconButton
                       size="small"
@@ -838,7 +838,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
                   Subtotal
                 </Typography>
                 <Typography variant="body1" fontWeight={600}>
-                  ${cartTotal.toFixed(2)}
+                  MMK{cartTotal.toFixed(2)}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 0.5 }}>
@@ -846,7 +846,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
                   Total
                 </Typography>
                 <Typography variant="h6" fontWeight={800} color="primary">
-                  ${cartTotal.toFixed(2)}
+                  MMK{cartTotal.toFixed(2)}
                 </Typography>
               </Box>
             </Box>
@@ -869,7 +869,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
                 "&:hover": { background: "linear-gradient(135deg, #1E6B53 0%, #165A44 100%)" },
               }}
             >
-              {isSubmitting ? "Processing..." : `Checkout - $${cartTotal.toFixed(2)}`}
+              {isSubmitting ? "Processing..." : `Checkout - MMK-${cartTotal.toFixed(2)}`}
             </Button>
           </DialogActions>
         )}
@@ -880,7 +880,7 @@ export default function POSView({ onCheckout }: POSViewProps) {
         <DialogTitle sx={{ fontWeight: 700, fontSize: "1rem" }}>Complete Sale?</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            This will finalize the sale for ${cartTotal.toFixed(2)} ({cartItemCount} items) and deduct stock from inventory.
+            This will finalize the sale for MMK{cartTotal.toFixed(2)} ({cartItemCount} items) and deduct stock from inventory.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>

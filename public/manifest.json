@@ -1,5 +1,5 @@
 {
-  "name": "Blush & Glow - Skincare & Cosmetics POS",
+  "name": "Blush & Glow",
   "short_name": "Blush & Glow",
   "description": "Mobile inventory and point-of-sale for skincare and cosmetic products",
   "start_url": "/",
@@ -9,9 +9,9 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/Media.jpg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/jpeg"
     }
   ]
 }

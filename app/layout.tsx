@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Skincare & Cosmetics POS',
-  description: 'Mobile inventory and point-of-sale app for skincare and cosmetic products',
+  title: 'Orbit POS',
+  description: 'Mobile inventory and point-of-sale for sme',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {

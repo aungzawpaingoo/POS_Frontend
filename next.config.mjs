@@ -27,7 +27,7 @@
 //     return [
 //       {
 //         source: '/api/:path*',
-//         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/:path*`,
+//         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://192.168.100.72:5000/api'}/:path*`,
 //       },
 //     ];
 //   },
@@ -75,7 +75,8 @@ const nextConfig = {
       return [
         {
           source: '/api/:path*',
-          destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/:path*`,
+          destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://pos.orbitdigitalsolution.com/api'}/:path*`,
+         // destination: `${'http://192.168.100.72:5001/api'}/:path*`,
         },
       ];
     }

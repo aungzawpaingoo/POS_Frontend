@@ -4,259 +4,20 @@
 //   createContext,
 //   useContext,
 //   useReducer,
-//   type ReactNode,
-//   type Dispatch,
-// } from "react"
-
-// // --- Types ---
-// export interface Product {
-//   id: string
-//   name: string
-//   price: number
-//   stock: number
-//   category: string
-//   sku: string
-// }
-
-// export interface CartItem {
-//   product: Product
-//   quantity: number
-// }
-
-// export interface SaleRecord {
-//   id: string
-//   items: CartItem[]
-//   total: number
-//   date: string
-// }
-
-// interface AppState {
-//   products: Product[]
-//   cart: CartItem[]
-//   sales: SaleRecord[]
-// }
-
-// // --- Actions ---
-// type Action =
-//   | { type: "ADD_PRODUCT"; payload: Omit<Product, "id"> }
-//   | { type: "UPDATE_PRODUCT"; payload: Product }
-//   | { type: "DELETE_PRODUCT"; payload: string }
-//   | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number } }
-//   | { type: "REMOVE_FROM_CART"; payload: string }
-//   | { type: "UPDATE_CART_QUANTITY"; payload: { productId: string; quantity: number } }
-//   | { type: "CLEAR_CART" }
-//   | { type: "COMPLETE_SALE" }
-
-// // --- Helpers ---
-// function generateId(): string {
-//   return Date.now().toString(36) + Math.random().toString(36).substring(2, 8)
-// }
-
-// // --- Initial State with sample data ---
-// const initialState: AppState = {
-//   products: [
-//     { id: "p1", name: "Hydrating Face Serum", price: 34.99, stock: 40, category: "Skincare", sku: "SK-001" },
-//     { id: "p2", name: "Vitamin C Moisturizer", price: 28.50, stock: 55, category: "Skincare", sku: "SK-002" },
-//     { id: "p3", name: "Retinol Night Cream", price: 42.00, stock: 30, category: "Skincare", sku: "SK-003" },
-//     { id: "p4", name: "SPF 50 Sunscreen", price: 18.99, stock: 90, category: "Skincare", sku: "SK-004" },
-//     { id: "p5", name: "Matte Lipstick - Rose", price: 16.50, stock: 70, category: "Makeup", sku: "MK-001" },
-//     { id: "p6", name: "Liquid Foundation", price: 32.00, stock: 50, category: "Makeup", sku: "MK-002" },
-//     { id: "p7", name: "Mascara - Volumizing", price: 14.99, stock: 85, category: "Makeup", sku: "MK-003" },
-//     { id: "p8", name: "Eyeshadow Palette", price: 38.00, stock: 25, category: "Makeup", sku: "MK-004" },
-//     { id: "p9", name: "Setting Spray", price: 19.99, stock: 60, category: "Makeup", sku: "MK-005" },
-//     { id: "p10", name: "Floral Eau de Parfum", price: 58.00, stock: 20, category: "Fragrance", sku: "FR-001" },
-//     { id: "p11", name: "Body Mist - Vanilla", price: 22.50, stock: 45, category: "Fragrance", sku: "FR-002" },
-//     { id: "p12", name: "Argan Hair Oil", price: 24.99, stock: 35, category: "Hair Care", sku: "HC-001" },
-//     { id: "p13", name: "Keratin Shampoo", price: 15.99, stock: 65, category: "Hair Care", sku: "HC-002" },
-//     { id: "p14", name: "Shea Body Butter", price: 20.00, stock: 50, category: "Body Care", sku: "BC-001" },
-//     { id: "p15", name: "Exfoliating Body Scrub", price: 18.50, stock: 40, category: "Body Care", sku: "BC-002" },
-//     { id: "p16", name: "Makeup Brush Set (12pc)", price: 29.99, stock: 15, category: "Tools", sku: "TL-001" },
-//     { id: "p17", name: "Beauty Blender Sponge", price: 8.99, stock: 100, category: "Tools", sku: "TL-002" },
-//     { id: "p18", name: "Micellar Cleansing Water", price: 12.99, stock: 75, category: "Skincare", sku: "SK-005" },
-//   ],
-//   cart: [],
-//   sales: [],
-// }
-
-// // --- Reducer ---
-// function appReducer(state: AppState, action: Action): AppState {
-//   switch (action.type) {
-//     case "ADD_PRODUCT":
-//       return {
-//         ...state,
-//         products: [
-//           ...state.products,
-//           { ...action.payload, id: generateId() },
-//         ],
-//       }
-
-//     case "UPDATE_PRODUCT":
-//       return {
-//         ...state,
-//         products: state.products.map((p) =>
-//           p.id === action.payload.id ? action.payload : p
-//         ),
-//       }
-
-//     case "DELETE_PRODUCT":
-//       return {
-//         ...state,
-//         products: state.products.filter((p) => p.id !== action.payload),
-//         cart: state.cart.filter((item) => item.product.id !== action.payload),
-//       }
-
-//     case "ADD_TO_CART": {
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
-//       if (!product) return state
-
-//       const existingItem = state.cart.find(
-//         (item) => item.product.id === action.payload.productId
-//       )
-//       const currentQty = existingItem ? existingItem.quantity : 0
-//       const newQty = currentQty + action.payload.quantity
-
-//       if (newQty > product.stock) return state
-
-//       if (existingItem) {
-//         return {
-//           ...state,
-//           cart: state.cart.map((item) =>
-//             item.product.id === action.payload.productId
-//               ? { ...item, quantity: newQty }
-//               : item
-//           ),
-//         }
-//       }
-
-//       return {
-//         ...state,
-//         cart: [...state.cart, { product, quantity: action.payload.quantity }],
-//       }
-//     }
-
-//     case "REMOVE_FROM_CART":
-//       return {
-//         ...state,
-//         cart: state.cart.filter(
-//           (item) => item.product.id !== action.payload
-//         ),
-//       }
-
-//     case "UPDATE_CART_QUANTITY": {
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
-//       if (!product) return state
-//       if (action.payload.quantity > product.stock) return state
-//       if (action.payload.quantity <= 0) {
-//         return {
-//           ...state,
-//           cart: state.cart.filter(
-//             (item) => item.product.id !== action.payload.productId
-//           ),
-//         }
-//       }
-//       return {
-//         ...state,
-//         cart: state.cart.map((item) =>
-//           item.product.id === action.payload.productId
-//             ? { ...item, quantity: action.payload.quantity }
-//             : item
-//         ),
-//       }
-//     }
-
-//     case "CLEAR_CART":
-//       return { ...state, cart: [] }
-
-//     case "COMPLETE_SALE": {
-//       if (state.cart.length === 0) return state
-
-//       const saleTotal = state.cart.reduce(
-//         (sum, item) => sum + item.product.price * item.quantity,
-//         0
-//       )
-
-//       const sale: SaleRecord = {
-//         id: generateId(),
-//         items: [...state.cart],
-//         total: saleTotal,
-//         date: new Date().toISOString(),
-//       }
-
-//       const updatedProducts = state.products.map((product) => {
-//         const cartItem = state.cart.find(
-//           (item) => item.product.id === product.id
-//         )
-//         if (cartItem) {
-//           return { ...product, stock: product.stock - cartItem.quantity }
-//         }
-//         return product
-//       })
-
-//       return {
-//         ...state,
-//         products: updatedProducts,
-//         cart: [],
-//         sales: [sale, ...state.sales],
-//       }
-//     }
-
-//     default:
-//       return state
-//   }
-// }
-
-// // --- Context ---
-// const AppContext = createContext<{
-//   state: AppState
-//   dispatch: Dispatch<Action>
-// } | null>(null)
-
-// export function AppProvider({ children }: { children: ReactNode }) {
-//   const [state, dispatch] = useReducer(appReducer, initialState)
-
-//   return (
-//     <AppContext.Provider value={{ state, dispatch }}>
-//       {children}
-//     </AppContext.Provider>
-//   )
-// }
-
-// export function useAppState() {
-//   const ctx = useContext(AppContext)
-//   if (!ctx) throw new Error("useAppState must be used within AppProvider")
-//   return ctx
-// }
-
-
-
-
-
-
-
-
-// "use client"
-
-// import {
-//   createContext,
-//   useContext,
-//   useReducer,
 //   useEffect,
 //   type ReactNode,
 //   type Dispatch,
 // } from "react"
 
-// // --- Types ---
 // export interface Product {
 //   id: string
+//   _id?: string
 //   name: string
 //   price: number
 //   stock: number
 //   category: string
 //   sku: string
+//   image_url?: string
 // }
 
 // export interface CartItem {
@@ -271,85 +32,91 @@
 //   date: string
 // }
 
-// interface AppState {
-//   products: Product[]
-//   cart: CartItem[]
-//   sales: SaleRecord[]
-//   isLoading: boolean
-//   error: string | null
+// export interface UserProfile {
+//   id: string
+//   email: string
+//   name?: string
+//   role?: string
 // }
 
-// // --- Actions ---
+// // Extracted schema matched exactly to React Native data payloads
+// export interface BackendReceiptItem {
+//   id: string
+//   time: string
+//   method: 'cash' | 'qr'
+//   change_returned: number
+//   mode: 'full' | 'split'
+//   paid: number
+//   total: number
+//   items?: Array<{
+//     name: string
+//     price: string | number
+//     quantity: number
+//   }>
+// }
+
+// interface InventoryMetrics {
+//   totalProducts: number
+//   totalStock: number
+//   totalValue: number
+// }
+
+// interface AppState {
+//   products: Product[]
+//   metrics: InventoryMetrics & { dailyRevenue?: number; transactionsCount?: number }
+//   cart: CartItem[]
+//   sales: SaleRecord[]
+//   receipts: BackendReceiptItem[] // Added to hold structural receipt records safely
+//   isLoading: boolean
+//   error: string | null
+//   user: UserProfile | null
+//   isAuthenticated: boolean
+// }
+
 // type Action =
 //   | { type: "SET_LOADING"; payload: boolean }
 //   | { type: "SET_ERROR"; payload: string | null }
-//   | { type: "SET_PRODUCTS"; payload: Product[] }
-//   | { type: "ADD_PRODUCT"; payload: Product }
-//   | { type: "UPDATE_PRODUCT"; payload: Product }
-//   | { type: "DELETE_PRODUCT"; payload: string }
+//   | { type: "SET_INVENTORY"; payload: { products: Product[]; metrics: InventoryMetrics & { dailyRevenue?: number; transactionsCount?: number } } }
 //   | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number } }
 //   | { type: "REMOVE_FROM_CART"; payload: string }
 //   | { type: "UPDATE_CART_QUANTITY"; payload: { productId: string; quantity: number } }
 //   | { type: "CLEAR_CART" }
-//   | { type: "COMPLETE_SALE"; payload: SaleRecord }
-//   | { type: "SET_SALES"; payload: SaleRecord[] }
+//   | { type: "AUTH_SUCCESS"; payload: { user: UserProfile } }
+//   | { type: "LOGOUT" }
+//   | { type: "SET_RECEIPTS"; payload: BackendReceiptItem[] } // Added securely
 
-// // --- Helpers ---
-// function generateId(): string {
-//   return Date.now().toString(36) + Math.random().toString(36).substring(2, 8)
-// }
-
-// // --- Initial State (empty) ---
 // const initialState: AppState = {
 //   products: [],
+//   metrics: { totalProducts: 0, totalStock: 0, totalValue: 0, dailyRevenue: 0, transactionsCount: 0 },
 //   cart: [],
 //   sales: [],
+//   receipts: [], // Initialize clean safe arrays
 //   isLoading: false,
 //   error: null,
+//   user: null,
+//   isAuthenticated: false,
 // }
 
-// // --- Reducer ---
 // function appReducer(state: AppState, action: Action): AppState {
 //   switch (action.type) {
 //     case "SET_LOADING":
 //       return { ...state, isLoading: action.payload }
-    
+
 //     case "SET_ERROR":
 //       return { ...state, error: action.payload }
-    
-//     case "SET_PRODUCTS":
-//       return { ...state, products: action.payload }
-    
-//     case "ADD_PRODUCT":
-//       return {
-//         ...state,
-//         products: [...state.products, action.payload],
-//       }
 
-//     case "UPDATE_PRODUCT":
+//     case "SET_INVENTORY":
 //       return {
 //         ...state,
-//         products: state.products.map((p) =>
-//           p.id === action.payload.id ? action.payload : p
-//         ),
-//       }
-
-//     case "DELETE_PRODUCT":
-//       return {
-//         ...state,
-//         products: state.products.filter((p) => p.id !== action.payload),
-//         cart: state.cart.filter((item) => item.product.id !== action.payload),
+//         products: action.payload.products,
+//         metrics: action.payload.metrics,
 //       }
 
 //     case "ADD_TO_CART": {
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
+//       const product = state.products.find((p) => p.id === action.payload.productId)
 //       if (!product) return state
 
-//       const existingItem = state.cart.find(
-//         (item) => item.product.id === action.payload.productId
-//       )
+//       const existingItem = state.cart.find((item) => item.product.id === action.payload.productId)
 //       const currentQty = existingItem ? existingItem.quantity : 0
 //       const newQty = currentQty + action.payload.quantity
 
@@ -368,32 +135,28 @@
 
 //       return {
 //         ...state,
-//         cart: [...state.cart, { product, quantity: action.payload.quantity }],
+//         cart: [...state.cart, { product: { ...product }, quantity: action.payload.quantity }],
 //       }
 //     }
 
 //     case "REMOVE_FROM_CART":
 //       return {
 //         ...state,
-//         cart: state.cart.filter(
-//           (item) => item.product.id !== action.payload
-//         ),
+//         cart: state.cart.filter((item) => item.product.id !== action.payload),
 //       }
 
 //     case "UPDATE_CART_QUANTITY": {
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
+//       const product = state.products.find((p) => p.id === action.payload.productId)
 //       if (!product) return state
+
 //       if (action.payload.quantity > product.stock) return state
 //       if (action.payload.quantity <= 0) {
 //         return {
 //           ...state,
-//           cart: state.cart.filter(
-//             (item) => item.product.id !== action.payload.productId
-//           ),
+//           cart: state.cart.filter((item) => item.product.id !== action.payload.productId),
 //         }
 //       }
+
 //       return {
 //         ...state,
 //         cart: state.cart.map((item) =>
@@ -407,633 +170,314 @@
 //     case "CLEAR_CART":
 //       return { ...state, cart: [] }
 
-//     case "COMPLETE_SALE": {
-//       // Update product stock
-//       const updatedProducts = state.products.map((product) => {
-//         const cartItem = state.cart.find(
-//           (item) => item.product.id === product.id
-//         )
-//         if (cartItem) {
-//           return { ...product, stock: product.stock - cartItem.quantity }
-//         }
-//         return product
-//       })
+//     case "AUTH_SUCCESS":
+//       return { ...state, user: action.payload.user, isAuthenticated: true, error: null }
 
-//       return {
-//         ...state,
-//         products: updatedProducts,
-//         cart: [],
-//         sales: [action.payload, ...state.sales],
-//       }
-//     }
+//     case "LOGOUT":
+//       return { ...state, user: null, isAuthenticated: false, cart: [], products: [], receipts: [] }
 
-//     case "SET_SALES":
-//       return { ...state, sales: action.payload }
+//     case "SET_RECEIPTS":
+//       return { ...state, receipts: action.payload }
 
 //     default:
 //       return state
 //   }
 // }
 
-// // --- Context ---
 // const AppContext = createContext<{
 //   state: AppState
 //   dispatch: Dispatch<Action>
-//   fetchProducts: () => Promise<void>
-//   fetchSales: () => Promise<void>
-//   createProduct: (product: Omit<Product, "id">) => Promise<void>
-//   updateProduct: (product: Product) => Promise<void>
+//   login: (email: string, pin: string) => Promise<void>
+//   fetchProfile: () => Promise<void>
+//   logout: () => void
+//   fetchInventory: (searchQuery?: string) => Promise<void>
+//   createProduct: (productData: FormData | Omit<Product, "id">) => Promise<void>
+//   updateProduct: (id: string, productData: FormData | Partial<Product>) => Promise<void>
 //   deleteProduct: (id: string) => Promise<void>
-//   completeSale: (saleData: Omit<SaleRecord, "id">) => Promise<void>
+//   checkoutCart: () => Promise<{ status: string; orderId: string }>
+//   confirmPayment: (orderId: string, paymentDetails: { paymentMethod: string; billingMode: string; amountPaid: number; receivedCash: number }) => Promise<{ status: string; message?: string }>
+//   fetchReceiptsByDate: (dateKey: string) => Promise<void> // Added to interface safely
+//   printReceiptDirectly: (receiptId: string) => Promise<{ status: string; message?: string }> // Added to interface safely
 // } | null>(null)
 
 // export function AppProvider({ children }: { children: ReactNode }) {
 //   const [state, dispatch] = useReducer(appReducer, initialState)
+//   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-//   // API Base URL - change this to your backend URL
-//   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
-
-//   // Fetch products from backend
-//   const fetchProducts = async () => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/products`)
-//       if (!response.ok) throw new Error("Failed to fetch products")
-//       const data = await response.json()
-//       dispatch({ type: "SET_PRODUCTS", payload: data })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch products" })
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
+//   const getHeaders = (isFormData = false) => {
+//     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+//     return {
+//       ...(isFormData ? {} : { "Content-Type": "application/json" }),
+//       ...(token ? { "Authorization": `Bearer ${token}` } : {})
 //     }
 //   }
 
-//   // Fetch sales from backend
-//   const fetchSales = async () => {
-//     dispatch({ type: "SET_LOADING", payload: true })
+//   const fetchProfile = async () => {
+//     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+//     if (!token) return
+
+//     type ErrorWithMessage = { message: string }
 //     try {
-//       const response = await fetch(`${API_BASE_URL}/sales`)
-//       if (!response.ok) throw new Error("Failed to fetch sales")
-//       const data = await response.json()
-//       dispatch({ type: "SET_SALES", payload: data })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch sales" })
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
+//       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+//         method: "GET",
+//         headers: getHeaders()
+//       })
+//       if (!response.ok) throw new Error("Session timed out")
+
+//       const userData = await response.json()
+//       const mappedUser = { ...userData, id: userData._id || userData.id }
+//       dispatch({ type: "AUTH_SUCCESS", payload: { user: mappedUser } })
+//     } catch (err) {
+//       console.error(err)
+//       logout()
 //     }
 //   }
 
-//   // Create product
-//   const createProduct = async (product: Omit<Product, "id">) => {
+//   const login = async (email: string, pin: string) => {
 //     dispatch({ type: "SET_LOADING", payload: true })
 //     try {
-//       const response = await fetch(`${API_BASE_URL}/products`, {
+//       const response = await fetch(`${API_BASE_URL}/auth/login`, {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(product),
+//         body: JSON.stringify({ email, password: pin }),
 //       })
-//       if (!response.ok) throw new Error("Failed to create product")
-//       const newProduct = await response.json()
-//       dispatch({ type: "ADD_PRODUCT", payload: newProduct })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to create product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
-//   }
 
-//   // Update product
-//   const updateProduct = async (product: Product) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/products/${product.id}`, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(product),
-//       })
-//       if (!response.ok) throw new Error("Failed to update product")
-//       const updatedProduct = await response.json()
-//       dispatch({ type: "UPDATE_PRODUCT", payload: updatedProduct })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to update product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
-//   }
-
-//   // Delete product
-//   const deleteProduct = async (id: string) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-//         method: "DELETE",
-//       })
-//       if (!response.ok) throw new Error("Failed to delete product")
-//       dispatch({ type: "DELETE_PRODUCT", payload: id })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to delete product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
-//   }
-
-//   // Complete sale
-//   const completeSale = async (saleData: Omit<SaleRecord, "id">) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       const saleWithId = {
-//         ...saleData,
-//         id: generateId(),
+//       if (!response.ok) {
+//         const errResponse = await response.json().catch(() => ({}))
+//         throw new Error(errResponse.message || "အသုံးပြုသူအမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။")
 //       }
-      
-//       const response = await fetch(`${API_BASE_URL}/sales`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(saleWithId),
+
+//       const data = await response.json()
+//       if (data.token) localStorage.setItem('auth_token', data.token)
+
+//       const userProfile = data.user || data
+//       const mappedUser = { ...userProfile, id: userProfile._id || userProfile.id }
+
+//       dispatch({ type: "AUTH_SUCCESS", payload: { user: mappedUser } })
+//       dispatch({ type: "SET_ERROR", payload: null })
+//     } catch (error) {
+//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to sign in" })
+//       throw error
+//     } finally {
+//       dispatch({ type: "SET_LOADING", payload: false })
+//     }
+//   }
+
+//   const logout = () => {
+//     localStorage.removeItem('auth_token')
+//     dispatch({ type: "LOGOUT" })
+//   }
+
+//   const fetchInventory = async (searchQuery = "") => {
+//     dispatch({ type: "SET_LOADING", payload: true })
+//     try {
+//       const url = new URL(`${API_BASE_URL}/inventory/dashboard`, window.location.origin)
+//       if (searchQuery) url.searchParams.append("search", searchQuery)
+
+//       const response = await fetch(url.toString(), {
+//         method: "GET",
+//         headers: getHeaders(),
 //       })
-      
-//       if (!response.ok) throw new Error("Failed to create sale")
-      
-//       // Update product stock in backend
-//       for (const item of saleData.items) {
-//         await fetch(`${API_BASE_URL}/products/${item.product.id}`, {
-//           method: "PATCH",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify({
-//             stock: item.product.stock - item.quantity
-//           }),
+
+//       if (!response.ok) throw new Error("Failed to clear network sync dashboard response")
+//       const data = await response.json()
+
+//       if (data && data.status !== "error") {
+//         const rawProducts = data.products || []
+//         const cleanProducts = rawProducts.map((p: any) => ({
+//           ...p,
+//           id: p._id || p.id,
+//         }))
+
+//         dispatch({
+//           type: "SET_INVENTORY",
+//           payload: {
+//             products: cleanProducts,
+//             metrics: {
+//               totalProducts: data.metrics?.totalProducts || cleanProducts.length || 0,
+//               totalStock: data.metrics?.totalStock || 0,
+//               totalValue: data.metrics?.totalValue || 0,
+//               dailyRevenue: Number(data.metrics?.dailyRevenue || 0),
+//               transactionsCount: Number(data.metrics?.transactionsCount || 0)
+//             },
+//           },
 //         })
 //       }
-      
-//       dispatch({ type: "COMPLETE_SALE", payload: saleWithId })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to complete sale" })
-//       throw error
+//     } catch (err) {
+//       console.error("Dashboard engine context sync tracking failure:", err)
 //     } finally {
 //       dispatch({ type: "SET_LOADING", payload: false })
 //     }
 //   }
 
-//   // Load initial data
-//   useEffect(() => {
-//     fetchProducts()
-//     fetchSales()
-//   }, [])
-
-//   return (
-//     <AppContext.Provider value={{
-//       state,
-//       dispatch,
-//       fetchProducts,
-//       fetchSales,
-//       createProduct,
-//       updateProduct,
-//       deleteProduct,
-//       completeSale,
-//     }}>
-//       {children}
-//     </AppContext.Provider>
-//   )
-// }
-
-// export function useAppState() {
-//   const ctx = useContext(AppContext)
-//   if (!ctx) throw new Error("useAppState must be used within AppProvider")
-//   return ctx
-// }
-
-
-
-
-
-
-// "use client"
-
-// import {
-//   createContext,
-//   useContext,
-//   useReducer,
-//   useEffect,
-//   type ReactNode,
-//   type Dispatch,
-// } from "react"
-
-// // --- Types ---
-// export interface Product {
-//   id: string
-//   name: string
-//   price: number
-//   stock: number
-//   category: string
-//   sku: string
-// }
-
-// export interface CartItem {
-//   product: Product
-//   quantity: number
-// }
-
-// export interface SaleRecord {
-//   id: string
-//   items: CartItem[]
-//   total: number
-//   date: string
-// }
-
-// interface AppState {
-//   products: Product[]
-//   cart: CartItem[]
-//   sales: SaleRecord[]
-//   isLoading: boolean
-//   error: string | null
-// }
-
-// // --- Actions ---
-// type Action =
-//   | { type: "SET_LOADING"; payload: boolean }
-//   | { type: "SET_ERROR"; payload: string | null }
-//   | { type: "SET_PRODUCTS"; payload: Product[] }
-//   | { type: "ADD_PRODUCT"; payload: Product }
-//   | { type: "UPDATE_PRODUCT"; payload: Product }
-//   | { type: "DELETE_PRODUCT"; payload: string }
-//   | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number } }
-//   | { type: "REMOVE_FROM_CART"; payload: string }
-//   | { type: "UPDATE_CART_QUANTITY"; payload: { productId: string; quantity: number } }
-//   | { type: "CLEAR_CART" }
-//   | { type: "COMPLETE_SALE"; payload: SaleRecord }
-//   | { type: "SET_SALES"; payload: SaleRecord[] }
-
-// // --- Helpers ---
-// function generateId(): string {
-//   return Date.now().toString(36) + Math.random().toString(36).substring(2, 8)
-// }
-
-// // --- Initial State (empty) ---
-// const initialState: AppState = {
-//   products: [],
-//   cart: [],
-//   sales: [],
-//   isLoading: false,
-//   error: null,
-// }
-
-// // --- Reducer ---
-// function appReducer(state: AppState, action: Action): AppState {
-//   switch (action.type) {
-//     case "SET_LOADING":
-//       return { ...state, isLoading: action.payload }
-    
-//     case "SET_ERROR":
-//       return { ...state, error: action.payload }
-    
-//     case "SET_PRODUCTS":
-//       return { ...state, products: action.payload }
-    
-//     case "ADD_PRODUCT":
-//       return {
-//         ...state,
-//         products: [...state.products, action.payload],
-//       }
-
-//     case "UPDATE_PRODUCT":
-//       return {
-//         ...state,
-//         products: state.products.map((p) =>
-//           p.id === action.payload.id ? action.payload : p
-//         ),
-//       }
-
-//     case "DELETE_PRODUCT":
-//       return {
-//         ...state,
-//         products: state.products.filter((p) => p.id !== action.payload),
-//         cart: state.cart.filter((item) => item.product.id !== action.payload),
-//       }
-
-//     case "ADD_TO_CART": {
-//       console.log('ADD_TO_CART:', action.payload); // Debug log
-      
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
-//       if (!product) {
-//         console.log('Product not found:', action.payload.productId);
-//         return state;
-//       }
-
-//       const existingItem = state.cart.find(
-//         (item) => item.product.id === action.payload.productId
-//       )
-//       const currentQty = existingItem ? existingItem.quantity : 0
-//       const newQty = currentQty + action.payload.quantity
-
-//       if (newQty > product.stock) {
-//         console.log('Stock exceeded:', newQty, '>', product.stock);
-//         return state;
-//       }
-
-//       if (existingItem) {
-//         console.log('Updating existing item:', product.id, 'new qty:', newQty);
-//         return {
-//           ...state,
-//           cart: state.cart.map((item) =>
-//             item.product.id === action.payload.productId
-//               ? { ...item, quantity: newQty }
-//               : item
-//           ),
-//         }
-//       }
-
-//       console.log('Adding new item to cart:', product.id);
-//       return {
-//         ...state,
-//         cart: [...state.cart, { 
-//           product: { ...product }, // Create a new object to avoid reference issues
-//           quantity: action.payload.quantity 
-//         }],
-//       }
-//     }
-
-//     case "REMOVE_FROM_CART":
-//       console.log('REMOVE_FROM_CART:', action.payload);
-//       return {
-//         ...state,
-//         cart: state.cart.filter(
-//           (item) => item.product.id !== action.payload
-//         ),
-//       }
-
-//     case "UPDATE_CART_QUANTITY": {
-//       console.log('UPDATE_CART_QUANTITY:', action.payload);
-      
-//       const product = state.products.find(
-//         (p) => p.id === action.payload.productId
-//       )
-//       if (!product) {
-//         console.log('Product not found for update:', action.payload.productId);
-//         return state;
-//       }
-      
-//       if (action.payload.quantity > product.stock) {
-//         console.log('Quantity exceeds stock:', action.payload.quantity, '>', product.stock);
-//         return state;
-//       }
-      
-//       if (action.payload.quantity <= 0) {
-//         console.log('Removing item due to zero quantity:', action.payload.productId);
-//         return {
-//           ...state,
-//           cart: state.cart.filter(
-//             (item) => item.product.id !== action.payload.productId
-//           ),
-//         }
-//       }
-      
-//       console.log('Updating quantity for:', action.payload.productId, 'to:', action.payload.quantity);
-//       return {
-//         ...state,
-//         cart: state.cart.map((item) =>
-//           item.product.id === action.payload.productId
-//             ? { ...item, quantity: action.payload.quantity }
-//             : item
-//         ),
-//       }
-//     }
-
-//     case "CLEAR_CART":
-//       console.log('CLEAR_CART');
-//       return { ...state, cart: [] }
-
-//     case "COMPLETE_SALE": {
-//       console.log('COMPLETE_SALE:', action.payload);
-      
-//       // Update product stock
-//       const updatedProducts = state.products.map((product) => {
-//         const cartItem = state.cart.find(
-//           (item) => item.product.id === product.id
-//         )
-//         if (cartItem) {
-//           return { 
-//             ...product, 
-//             stock: product.stock - cartItem.quantity 
-//           }
-//         }
-//         return product
-//       })
-
-//       return {
-//         ...state,
-//         products: updatedProducts,
-//         cart: [],
-//         sales: [action.payload, ...state.sales],
-//       }
-//     }
-
-//     case "SET_SALES":
-//       return { ...state, sales: action.payload }
-
-//     default:
-//       return state
-//   }
-// }
-
-// // --- Context ---
-// const AppContext = createContext<{
-//   state: AppState
-//   dispatch: Dispatch<Action>
-//   fetchProducts: () => Promise<void>
-//   fetchSales: () => Promise<void>
-//   createProduct: (product: Omit<Product, "id">) => Promise<void>
-//   updateProduct: (product: Product) => Promise<void>
-//   deleteProduct: (id: string) => Promise<void>
-//   completeSale: (saleData: Omit<SaleRecord, "id">) => Promise<void>
-// } | null>(null)
-
-// export function AppProvider({ children }: { children: ReactNode }) {
-//   const [state, dispatch] = useReducer(appReducer, initialState)
-
-//   // Use proxy in development, full URL in production
-//   const API_BASE_URL = process.env.NODE_ENV === 'development' 
-//     ? '/api'  // This will use the Next.js proxy
-//     : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
-
-//   // Fetch products from backend
-//   const fetchProducts = async () => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       console.log('Fetching products from:', `${API_BASE_URL}/products`);
-//       const response = await fetch(`${API_BASE_URL}/products`)
-//       if (!response.ok) throw new Error("Failed to fetch products")
-//       const data = await response.json()
-//       console.log('Products fetched:', data);
-//       dispatch({ type: "SET_PRODUCTS", payload: data })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       console.error("Fetch products error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch products" })
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
+//   const createProduct = async (productData: FormData | Omit<Product, "id">) => {
+//     const isFormData = productData instanceof FormData
+//     const response = await fetch(`${API_BASE_URL}/inventory/products`, {
+//       method: "POST",
+//       headers: getHeaders(isFormData),
+//       body: isFormData ? productData : JSON.stringify(productData),
+//     })
+//     if (!response.ok) {
+//       const err = await response.json().catch(() => ({}))
+//       throw new Error(err.message || "Failed to create item setup sync")
 //     }
 //   }
 
-//   // Fetch sales from backend
-//   const fetchSales = async () => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       console.log('Fetching sales from:', `${API_BASE_URL}/sales`);
-//       const response = await fetch(`${API_BASE_URL}/sales`)
-//       if (!response.ok) throw new Error("Failed to fetch sales")
-//       const data = await response.json()
-//       console.log('Sales fetched:', data);
-//       dispatch({ type: "SET_SALES", payload: data })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       console.error("Fetch sales error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch sales" })
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
+//   const updateProduct = async (id: string, productData: FormData | Partial<Product>) => {
+//     const isFormData = productData instanceof FormData
+//     const response = await fetch(`${API_BASE_URL}/inventory/products/${id}`, {
+//       method: "PUT",
+//       headers: getHeaders(isFormData),
+//       body: isFormData ? productData : JSON.stringify(productData),
+//     })
+//     if (!response.ok) {
+//       const err = await response.json().catch(() => ({}))
+//       throw new Error(err.message || "Failed to finalize updates on dynamic route tracking context")
 //     }
 //   }
 
-//   // Create product
-//   const createProduct = async (product: Omit<Product, "id">) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       console.log('Creating product:', product);
-//       const response = await fetch(`${API_BASE_URL}/products`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(product),
-//       })
-//       if (!response.ok) {
-//         const error = await response.json()
-//         throw new Error(error.message || "Failed to create product")
-//       }
-//       const newProduct = await response.json()
-//       console.log('Product created:', newProduct);
-//       dispatch({ type: "ADD_PRODUCT", payload: newProduct })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       console.error("Create product error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to create product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
-//   }
-
-//   // Update product
-//   const updateProduct = async (product: Product) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       console.log('Updating product:', product);
-//       const response = await fetch(`${API_BASE_URL}/products/${product.id}`, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(product),
-//       })
-//       if (!response.ok) {
-//         const error = await response.json()
-//         throw new Error(error.message || "Failed to update product")
-//       }
-//       const updatedProduct = await response.json()
-//       console.log('Product updated:', updatedProduct);
-//       dispatch({ type: "UPDATE_PRODUCT", payload: updatedProduct })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       console.error("Update product error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to update product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
-//   }
-
-//   // Delete product
 //   const deleteProduct = async (id: string) => {
-//     dispatch({ type: "SET_LOADING", payload: true })
-//     try {
-//       console.log('Deleting product:', id);
-//       const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-//         method: "DELETE",
-//       })
-//       if (!response.ok) {
-//         const error = await response.json()
-//         throw new Error(error.message || "Failed to delete product")
-//       }
-//       console.log('Product deleted:', id);
-//       dispatch({ type: "DELETE_PRODUCT", payload: id })
-//       dispatch({ type: "SET_ERROR", payload: null })
-//     } catch (error) {
-//       console.error("Delete product error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to delete product" })
-//       throw error
-//     } finally {
-//       dispatch({ type: "SET_LOADING", payload: false })
-//     }
+//     const response = await fetch(`${API_BASE_URL}/inventory/products/${id}`, {
+//       method: "DELETE",
+//       headers: getHeaders(),
+//     })
+//     if (!response.ok) throw new Error("Failed to fulfill deletion sequence parameters securely")
 //   }
 
-//   // Complete sale
-//   const completeSale = async (saleData: Omit<SaleRecord, "id">) => {
+//   const checkoutCart = async () => {
 //     dispatch({ type: "SET_LOADING", payload: true })
 //     try {
-//       console.log('Completing sale:', saleData);
-      
-//       const response = await fetch(`${API_BASE_URL}/sales`, {
+//       const processedCart: { [key: number]: number } = {}
+//       let totalAmount = 0
+
+//       state.cart.forEach((item) => {
+//         const idNum = Number(item.product.id)
+//         if (!isNaN(idNum)) {
+//           processedCart[idNum] = item.quantity
+//           totalAmount += item.product.price * item.quantity
+//         }
+//       })
+
+//       const response = await fetch(`${API_BASE_URL}/pos/checkout`, {
 //         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(saleData),
+//         headers: getHeaders(),
+//         body: JSON.stringify({
+//           cart: processedCart,
+//           totalAmount: totalAmount
+//         })
 //       })
-      
-//       if (!response.ok) {
-//         const error = await response.json()
-//         throw new Error(error.message || "Failed to create sale")
+
+//       const data = await response.json()
+
+//       if (data && data.status === "success") {
+//         dispatch({ type: "CLEAR_CART" })
+//         dispatch({ type: "SET_ERROR", payload: null })
+//         return { status: "success", orderId: data.orderId }
+//       } else {
+//         throw new Error(data?.message || "Error executing transactional operation.")
 //       }
-      
-//       const newSale = await response.json()
-//       console.log('Sale created:', newSale);
-      
-//       // Refresh products to get updated stock
-//       await fetchProducts()
-      
-//       dispatch({ type: "COMPLETE_SALE", payload: newSale })
-//       dispatch({ type: "SET_ERROR", payload: null })
-      
-//     } catch (error) {
-//       console.error("Complete sale error:", error)
-//       dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to complete sale" })
+//     } catch (error: any) {
+//       const errMsg = error.message || "Failed to dispatch transactional transaction ledger updates."
+//       dispatch({ type: "SET_ERROR", payload: errMsg })
 //       throw error
 //     } finally {
 //       dispatch({ type: "SET_LOADING", payload: false })
 //     }
 //   }
 
-//   // Load initial data
+//   const confirmPayment = async (
+//     orderId: string, 
+//     paymentDetails: { paymentMethod: string; billingMode: string; amountPaid: number; receivedCash: number }
+//   ) => {
+//     dispatch({ type: "SET_LOADING", payload: true })
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/pos/orders/${orderId}/confirm-payment`, {
+//         method: "PUT",
+//         headers: getHeaders(),
+//         body: JSON.stringify(paymentDetails)
+//       })
+//       const data = await response.json()
+//       if (data && data.status === "success") {
+//         dispatch({ type: "SET_ERROR", payload: null })
+//         return { status: "success" }
+//       } else {
+//         throw new Error(data?.message || "Database execution fault.")
+//       }
+//     } catch (error: any) {
+//       const errMsg = error.message || "Could not verify state confirmation on ledger nodes."
+//       dispatch({ type: "SET_ERROR", payload: errMsg })
+//       throw error
+//     } finally {
+//       dispatch({ type: "SET_LOADING", payload: false })
+//     }
+//   }
+
+//   // Pure state alignment corresponding directly with React Native Axios pulling parameters
+//   const fetchReceiptsByDate = async (dateKey: string) => {
+//     dispatch({ type: "SET_LOADING", payload: true })
+//     try {
+//       const url = new URL(`${API_BASE_URL}/pos/receipts`, window.location.origin)
+//       url.searchParams.append("date", dateKey)
+
+//       const response = await fetch(url.toString(), {
+//         method: "GET",
+//         headers: getHeaders()
+//       })
+
+//       const data = await response.json()
+//       if (data && data.status === "success") {
+//         dispatch({ type: "SET_RECEIPTS", payload: data.data || [] })
+//         dispatch({ type: "SET_ERROR", payload: null })
+//       } else {
+//         dispatch({ type: "SET_RECEIPTS", payload: [] })
+//       }
+//     } catch (err: any) {
+//       console.error("Web dynamic synchronization error with database routing logs: ", err)
+//       dispatch({ type: "SET_RECEIPTS", payload: [] })
+//     } finally {
+//       dispatch({ type: "SET_LOADING", payload: false })
+//     }
+//   }
+
+//   // Web service dispatcher to drive standard hardware receipt workflows
+//   const printReceiptDirectly = async (receiptId: string) => {
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/pos/receipts/${receiptId}/print`, {
+//         method: "POST",
+//         headers: getHeaders(),
+//         body: JSON.stringify({
+//           deviceType: "web_browser",
+//           hardwareInterface: "bluetooth_thermal"
+//         })
+//       })
+//       return await response.json()
+//     } catch (error: any) {
+//       return { status: "error", message: error.message || "Network layout exception printing to physical device nodes." }
+//     }
+//   }
+
 //   useEffect(() => {
-//     fetchProducts()
-//     fetchSales()
+//     fetchProfile()
 //   }, [])
 
 //   return (
-//     <AppContext.Provider value={{
-//       state,
-//       dispatch,
-//       fetchProducts,
-//       fetchSales,
-//       createProduct,
-//       updateProduct,
-//       deleteProduct,
-//       completeSale,
-//     }}>
+//     <AppContext.Provider
+//       value={{
+//         state,
+//         dispatch,
+//         login,
+//         fetchProfile,
+//         logout,
+//         fetchInventory,
+//         createProduct,
+//         updateProduct,
+//         deleteProduct,
+//         checkoutCart,
+//         confirmPayment,
+//         fetchReceiptsByDate,
+//         printReceiptDirectly
+//       }}
+//     >
 //       {children}
 //     </AppContext.Provider>
 //   )
@@ -1044,12 +488,6 @@
 //   if (!ctx) throw new Error("useAppState must be used within AppProvider")
 //   return ctx
 // }
-
-
-
-
-
-
 
 
 
@@ -1067,19 +505,22 @@ import {
   type Dispatch,
 } from "react"
 
-// --- Types ---
 export interface Product {
   id: string
+  _id?: string
   name: string
   price: number
   stock: number
   category: string
   sku: string
+  image_url?: string
+
 }
 
 export interface CartItem {
   product: Product
   quantity: number
+  unit_sold: 'main' | 'sub'
 }
 
 export interface SaleRecord {
@@ -1089,456 +530,356 @@ export interface SaleRecord {
   date: string
 }
 
-interface AppState {
-  products: Product[]
-  cart: CartItem[]
-  sales: SaleRecord[]
-  isLoading: boolean
-  error: string | null
+export interface UserProfile {
+  id: string
+  email: string
+  name?: string
+  role?: string
 }
 
-// --- Actions ---
+export interface BackendReceiptItem {
+  id: string
+  time: string
+  method: 'cash' | 'qr'
+  change_returned: number
+  mode: 'full' | 'split'
+  paid: number
+  total: number
+  items?: Array<{
+    name: string
+    price: string | number
+    quantity: number
+  }>
+}
+
+interface InventoryMetrics {
+  totalProducts: number
+  totalStock: number
+  totalValue: number
+}
+
+interface AppState {
+  products: Product[]
+  metrics: InventoryMetrics & { dailyRevenue?: number; transactionsCount?: number }
+  cart: CartItem[]
+  sales: SaleRecord[]
+  receipts: BackendReceiptItem[]
+  isLoading: boolean
+  error: string | null
+  user: UserProfile | null
+  isAuthenticated: boolean
+}
+
 type Action =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
-  | { type: "SET_PRODUCTS"; payload: Product[] }
-  | { type: "ADD_PRODUCT"; payload: Product }
-  | { type: "UPDATE_PRODUCT"; payload: Product }
-  | { type: "DELETE_PRODUCT"; payload: string }
-  | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number } }
-  | { type: "REMOVE_FROM_CART"; payload: string }
-  | { type: "UPDATE_CART_QUANTITY"; payload: { productId: string; quantity: number } }
+  | { type: "SET_INVENTORY"; payload: { products: Product[]; metrics: InventoryMetrics & { dailyRevenue?: number; transactionsCount?: number } } }
+  | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number; unit_sold: 'main' | 'sub' } }
+  | { type: "REMOVE_FROM_CART"; payload: { productId: string; unit_sold: 'main' | 'sub' } }
+  | { type: "UPDATE_CART_QUANTITY"; payload: { productId: string; quantity: number; unit_sold: 'main' | 'sub' } }
   | { type: "CLEAR_CART" }
-  | { type: "COMPLETE_SALE"; payload: SaleRecord }
-  | { type: "SET_SALES"; payload: SaleRecord[] }
+  | { type: "AUTH_SUCCESS"; payload: { user: UserProfile } }
+  | { type: "LOGOUT" }
+  | { type: "SET_RECEIPTS"; payload: BackendReceiptItem[] }
 
-// --- Helpers ---
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 8)
-}
-
-// --- Initial State (empty) ---
 const initialState: AppState = {
   products: [],
+  metrics: { totalProducts: 0, totalStock: 0, totalValue: 0, dailyRevenue: 0, transactionsCount: 0 },
   cart: [],
   sales: [],
+  receipts: [],
   isLoading: false,
   error: null,
+  user: null,
+  isAuthenticated: false,
 }
 
-// --- Reducer ---
 function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "SET_LOADING":
       return { ...state, isLoading: action.payload }
-    
+
     case "SET_ERROR":
       return { ...state, error: action.payload }
-    
-    case "SET_PRODUCTS":
-      return { ...state, products: action.payload }
-    
-    case "ADD_PRODUCT":
-      return {
-        ...state,
-        products: [...state.products, action.payload],
-      }
 
-    case "UPDATE_PRODUCT":
+    case "SET_INVENTORY":
       return {
         ...state,
-        products: state.products.map((p) =>
-          p.id === action.payload.id ? action.payload : p
-        ),
-      }
-
-    case "DELETE_PRODUCT":
-      return {
-        ...state,
-        products: state.products.filter((p) => p.id !== action.payload),
-        cart: state.cart.filter((item) => item.product.id !== action.payload),
+        products: action.payload.products,
+        metrics: action.payload.metrics,
       }
 
     case "ADD_TO_CART": {
-      console.log('ADD_TO_CART:', action.payload);
+      const product = state.products.find((p) => p.id === action.payload.productId)
+      if (!product) return state
+
+      const { unit_sold, quantity } = action.payload
+      const existingItem = state.cart.find((item) => item.product.id === action.payload.productId && item.unit_sold === unit_sold)
       
-      const product = state.products.find(
-        (p) => p.id === action.payload.productId
-      )
-      if (!product) {
-        console.log('Product not found:', action.payload.productId);
-        return state;
-      }
+      const newQty = (existingItem ? existingItem.quantity : 0) + quantity
 
-      const existingItem = state.cart.find(
-        (item) => item.product.id === action.payload.productId
-      )
-      const currentQty = existingItem ? existingItem.quantity : 0
-      const newQty = currentQty + action.payload.quantity
-
-      if (newQty > product.stock) {
-        console.log('Stock exceeded:', newQty, '>', product.stock);
-        return state;
-      }
-
-      if (existingItem) {
-        console.log('Updating existing item:', product.id, 'new qty:', newQty);
-        return {
-          ...state,
-          cart: state.cart.map((item) =>
-            item.product.id === action.payload.productId
-              ? { ...item, quantity: newQty }
-              : item
-          ),
-        }
-      }
-
-      console.log('Adding new item to cart:', product.id);
       return {
         ...state,
-        cart: [...state.cart, { 
-          product: { ...product },
-          quantity: action.payload.quantity 
-        }],
+        cart: existingItem
+          ? state.cart.map((item) => item.product.id === action.payload.productId && item.unit_sold === unit_sold ? { ...item, quantity: newQty } : item)
+          : [...state.cart, { product: { ...product }, quantity, unit_sold }]
       }
     }
 
     case "REMOVE_FROM_CART":
-      console.log('REMOVE_FROM_CART:', action.payload);
       return {
         ...state,
-        cart: state.cart.filter(
-          (item) => item.product.id !== action.payload
-        ),
+        cart: state.cart.filter((item) => !(item.product.id === action.payload.productId && item.unit_sold === action.payload.unit_sold)),
       }
 
     case "UPDATE_CART_QUANTITY": {
-      console.log('UPDATE_CART_QUANTITY:', action.payload);
-      
-      const product = state.products.find(
-        (p) => p.id === action.payload.productId
-      )
-      if (!product) {
-        console.log('Product not found for update:', action.payload.productId);
-        return state;
+      const { quantity, unit_sold, productId } = action.payload
+      if (quantity <= 0) {
+        return { ...state, cart: state.cart.filter((item) => !(item.product.id === productId && item.unit_sold === unit_sold)) }
       }
-      
-      if (action.payload.quantity > product.stock) {
-        console.log('Quantity exceeds stock:', action.payload.quantity, '>', product.stock);
-        return state;
-      }
-      
-      if (action.payload.quantity <= 0) {
-        console.log('Removing item due to zero quantity:', action.payload.productId);
-        return {
-          ...state,
-          cart: state.cart.filter(
-            (item) => item.product.id !== action.payload.productId
-          ),
-        }
-      }
-      
-      console.log('Updating quantity for:', action.payload.productId, 'to:', action.payload.quantity);
       return {
         ...state,
         cart: state.cart.map((item) =>
-          item.product.id === action.payload.productId
-            ? { ...item, quantity: action.payload.quantity }
+          item.product.id === productId && item.unit_sold === unit_sold
+            ? { ...item, quantity }
             : item
         ),
       }
     }
 
     case "CLEAR_CART":
-      console.log('CLEAR_CART');
       return { ...state, cart: [] }
 
-    case "COMPLETE_SALE": {
-      console.log('COMPLETE_SALE:', action.payload);
-      
-      const updatedProducts = state.products.map((product) => {
-        const cartItem = state.cart.find(
-          (item) => item.product.id === product.id
-        )
-        if (cartItem) {
-          return { 
-            ...product, 
-            stock: product.stock - cartItem.quantity 
-          }
-        }
-        return product
-      })
+    case "AUTH_SUCCESS":
+      return { ...state, user: action.payload.user, isAuthenticated: true, error: null }
 
-      return {
-        ...state,
-        products: updatedProducts,
-        cart: [],
-        sales: [action.payload, ...state.sales],
-      }
-    }
+    case "LOGOUT":
+      return { ...state, user: null, isAuthenticated: false, cart: [], products: [], receipts: [] }
 
-    case "SET_SALES":
-      return { ...state, sales: action.payload }
+    case "SET_RECEIPTS":
+      return { ...state, receipts: action.payload }
 
     default:
       return state
   }
 }
 
-// --- Context ---
 const AppContext = createContext<{
   state: AppState
   dispatch: Dispatch<Action>
-  fetchProducts: () => Promise<void>
-  fetchSales: () => Promise<void>
-  createProduct: (product: Omit<Product, "id">) => Promise<void>
-  updateProduct: (product: Product) => Promise<void>
+  login: (email: string, pin: string) => Promise<void>
+  fetchProfile: () => Promise<void>
+  logout: () => void
+  fetchInventory: (searchQuery?: string) => Promise<void>
+  createProduct: (productData: FormData | Omit<Product, "id">) => Promise<void>
+  updateProduct: (id: string, productData: FormData | Partial<Product>) => Promise<void>
   deleteProduct: (id: string) => Promise<void>
-  completeSale: (saleData: Omit<SaleRecord, "id">) => Promise<void>
+  checkoutCart: () => Promise<{ status: string; orderId: string }>
+  confirmPayment: (orderId: string, paymentDetails: any) => Promise<{ status: string; message?: string }>
+  
+  addPayment: (orderId: string, paymentDetails: { amountPaid: number, paymentMethod: string }) => Promise<any>
+
+  fetchReceiptsByDate: (dateKey: string) => Promise<void>
+  printReceiptDirectly: (receiptId: string) => Promise<{ status: string; message?: string }>
+  fetchTransactionDetail: (id: string) => Promise<any>
 } | null>(null)
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState)
-
-  // Use proxy in development, full URL in production
-  // const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  //   ? '/api'
-  //   : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
-
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-
-  // Fetch products from backend
-  const fetchProducts = async () => {
-    dispatch({ type: "SET_LOADING", payload: true })
-    try {
-      console.log('Fetching products from:', `${API_BASE_URL}/products`);
-      const response = await fetch(`${API_BASE_URL}/products`)
-      if (!response.ok) throw new Error("Failed to fetch products")
-      const data = await response.json()
-      console.log('Products fetched:', data);
-      
-      // Map MongoDB _id to id
-      const productsWithId = data.map((product: any) => ({
-        ...product,
-        id: product._id || product.id
-      }))
-      
-      dispatch({ type: "SET_PRODUCTS", payload: productsWithId })
-      dispatch({ type: "SET_ERROR", payload: null })
-    } catch (error) {
-      console.error("Fetch products error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch products" })
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
+  const getHeaders = (isFormData = false) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    return {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
     }
   }
 
-  // Fetch sales from backend
-  const fetchSales = async () => {
-    dispatch({ type: "SET_LOADING", payload: true })
-    try {
-      console.log('Fetching sales from:', `${API_BASE_URL}/sales`);
-      const response = await fetch(`${API_BASE_URL}/sales`)
-      if (!response.ok) throw new Error("Failed to fetch sales")
-      const data = await response.json()
-      console.log('Sales fetched:', data);
-      
-      // Map MongoDB _id to id for sales and their items
-      const salesWithId = data.map((sale: any) => ({
-        ...sale,
-        id: sale._id || sale.id,
-        items: sale.items.map((item: any) => ({
-          ...item,
-          product: {
-            ...item.product,
-            id: item.product._id || item.product.id
-          }
-        }))
-      }))
-      
-      dispatch({ type: "SET_SALES", payload: salesWithId })
-      dispatch({ type: "SET_ERROR", payload: null })
-    } catch (error) {
-      console.error("Fetch sales error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to fetch sales" })
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
-    }
-  }
+  // const fetchProfile = async () => {
+  //   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+  //   if (!token) return
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/auth/profile`, { headers: getHeaders() })
+  //     if (!response.ok) throw new Error("Session timed out")
+  //     const userData = await response.json()
+  //     dispatch({ type: "AUTH_SUCCESS", payload: { user: { ...userData, id: userData._id || userData.id } } })
+  //   } catch { logout() }
+  // }
 
-  // Create product
-  const createProduct = async (product: Omit<Product, "id">) => {
+  const fetchProfile = async () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+  if (!token) return
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, { headers: getHeaders() })
+    if (!response.ok) throw new Error("Session timed out")
+    
+    const data = await response.json()
+    
+    // Based on your console log, the real user data is inside 'data.user'
+    // We extract that specific object to make state management clean
+    const userProfile = data.user || data; 
+    
+    dispatch({ 
+      type: "AUTH_SUCCESS", 
+      payload: { 
+        user: { 
+          ...userProfile, 
+          id: userProfile._id || userProfile.id 
+        } 
+      } 
+    })
+  } catch { logout() }
+}
+
+  const login = async (email: string, pin: string) => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-      console.log('Creating product:', product);
-      const response = await fetch(`${API_BASE_URL}/products`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
+        body: JSON.stringify({ email, password: pin }),
       })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to create product")
-      }
-      const newProduct = await response.json()
-      console.log('Product created:', newProduct);
-      
-      // Map MongoDB _id to id
-      const productWithId = {
-        ...newProduct,
-        id: newProduct._id || newProduct.id
-      }
-      
-      dispatch({ type: "ADD_PRODUCT", payload: productWithId })
-      dispatch({ type: "SET_ERROR", payload: null })
-    } catch (error) {
-      console.error("Create product error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to create product" })
-      throw error
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
-    }
+      if (!response.ok) throw new Error("Login failed")
+      const data = await response.json()
+      if (data.token) localStorage.setItem('auth_token', data.token)
+      dispatch({ type: "AUTH_SUCCESS", payload: { user: { ...data.user, id: data.user._id || data.user.id } } })
+    } finally { dispatch({ type: "SET_LOADING", payload: false }) }
   }
 
-  // Update product
-  const updateProduct = async (product: Product) => {
+  const logout = () => {
+    localStorage.removeItem('auth_token')
+    dispatch({ type: "LOGOUT" })
+  }
+
+  const fetchInventory = async (searchQuery = "") => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-      console.log('Updating product:', product);
-      
-      // Remove the id field and use _id for the backend
-      const { id, ...productData } = product;
-      
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to update product")
+      const url = new URL(`${API_BASE_URL}/inventory/dashboard`, window.location.origin)
+      if (searchQuery) url.searchParams.append("search", searchQuery)
+      const response = await fetch(url.toString(), { headers: getHeaders() })
+      const data = await response.json()
+      if (data && data.status !== "error") {
+        dispatch({
+          type: "SET_INVENTORY",
+          payload: {
+            products: (data.products || []).map((p: any) => ({ ...p, id: p._id || p.id, category: p.category })),
+            metrics: {
+              totalProducts: data.metrics?.totalProducts || 0,
+              totalStock: data.metrics?.totalStock || 0,
+              totalValue: data.metrics?.totalValue || 0,
+              dailyRevenue: Number(data.metrics?.dailyRevenue || 0),
+              transactionsCount: Number(data.metrics?.transactionsCount || 0)
+            }
+          }
+        })
       }
-      const updatedProduct = await response.json()
-      console.log('Product updated:', updatedProduct);
-      
-      // Map MongoDB _id to id
-      const productWithId = {
-        ...updatedProduct,
-        id: updatedProduct._id || updatedProduct.id
-      }
-      
-      dispatch({ type: "UPDATE_PRODUCT", payload: productWithId })
-      dispatch({ type: "SET_ERROR", payload: null })
-    } catch (error) {
-      console.error("Update product error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to update product" })
-      throw error
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
-    }
+    } finally { dispatch({ type: "SET_LOADING", payload: false }) }
   }
 
-  // Delete product
+  const createProduct = async (productData: FormData | Omit<Product, "id">) => {
+    const isFormData = productData instanceof FormData
+    await fetch(`${API_BASE_URL}/inventory/products`, {
+      method: "POST",
+      headers: getHeaders(isFormData),
+      body: isFormData ? productData : JSON.stringify(productData),
+    })
+  }
+
+  const updateProduct = async (id: string, productData: FormData | Partial<Product>) => {
+    const isFormData = productData instanceof FormData
+    await fetch(`${API_BASE_URL}/inventory/products/${id}`, {
+      method: "PUT",
+      headers: getHeaders(isFormData),
+      body: isFormData ? productData : JSON.stringify(productData),
+    })
+  }
+
   const deleteProduct = async (id: string) => {
-    dispatch({ type: "SET_LOADING", payload: true })
-    try {
-      console.log('Deleting product:', id);
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        method: "DELETE",
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to delete product")
-      }
-      console.log('Product deleted:', id);
-      dispatch({ type: "DELETE_PRODUCT", payload: id })
-      dispatch({ type: "SET_ERROR", payload: null })
-    } catch (error) {
-      console.error("Delete product error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to delete product" })
-      throw error
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
-    }
+    await fetch(`${API_BASE_URL}/inventory/products/${id}`, { method: "DELETE", headers: getHeaders() })
   }
 
-  // Complete sale
-  const completeSale = async (saleData: Omit<SaleRecord, "id">) => {
+  const checkoutCart = async () => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-      console.log('Completing sale:', saleData);
-      
-      // Prepare sale data for backend (convert product.id to product._id)
-      const saleForBackend = {
-        ...saleData,
-        items: saleData.items.map(item => ({
-          product: {
-            ...item.product,
-            _id: item.product.id // Use id as _id for backend
-          },
-          quantity: item.quantity
-        }))
-      };
-      
-      const response = await fetch(`${API_BASE_URL}/sales`, {
+
+      const cartObject = state.cart.reduce((acc, item) => {
+      acc[item.product.id] = item.quantity;
+      return acc;
+    }, {} as Record<string, number>);
+
+      // The checkout logic now sends the explicit unit_sold type
+      const response = await fetch(`${API_BASE_URL}/pos/checkout`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(saleForBackend),
+        headers: getHeaders(),
+       body: JSON.stringify({ 
+        cart: cartObject, // Sending as an object
+        totalAmount: state.cart.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0)
       })
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to create sale")
-      }
-      
-      const newSale = await response.json()
-      console.log('Sale created:', newSale);
-      
-      // Refresh products to get updated stock
-      await fetchProducts()
-      
-      // Map sale data for frontend
-      const saleWithId = {
-        ...newSale,
-        id: newSale._id || newSale.id,
-        items: newSale.items.map((item: any) => ({
-          ...item,
-          product: {
-            ...item.product,
-            id: item.product._id || item.product.id
-          }
-        }))
-      };
-      
-      dispatch({ type: "COMPLETE_SALE", payload: saleWithId })
-      dispatch({ type: "SET_ERROR", payload: null })
-      
-    } catch (error) {
-      console.error("Complete sale error:", error)
-      dispatch({ type: "SET_ERROR", payload: error instanceof Error ? error.message : "Failed to complete sale" })
-      throw error
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
+    })
+      const data = await response.json()
+    if (response.ok && data.status === "success") {
+      dispatch({ type: "CLEAR_CART" })
+      return { status: "success", orderId: data.orderId }
     }
+    throw new Error(data.message || "Checkout failed")
+  } finally { 
+    dispatch({ type: "SET_LOADING", payload: false }) 
+  }
+}
+
+  const confirmPayment = async (orderId: string, paymentDetails: any) => {
+    dispatch({ type: "SET_LOADING", payload: true })
+    try {
+      const response = await fetch(`${API_BASE_URL}/pos/orders/${orderId}/confirm-payment`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(paymentDetails)
+      })
+      return await response.json()
+    } finally { dispatch({ type: "SET_LOADING", payload: false }) }
   }
 
-  // Load initial data
-  useEffect(() => {
-    fetchProducts()
-    fetchSales()
-  }, [])
+  const fetchTransactionDetail = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/pos/transaction/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error("အော်ဒါအချက်အလက်ကို ရှာမတွေ့ပါ။");
+    return await response.json();
+  };
+
+  const fetchReceiptsByDate = async (dateKey: string) => {
+    const response = await fetch(`${API_BASE_URL}/pos/receipts?date=${dateKey}`, { headers: getHeaders() })
+    const data = await response.json()
+    dispatch({ type: "SET_RECEIPTS", payload: data.data || [] })
+  }
+
+  const printReceiptDirectly = async (receiptId: string) => {
+    const response = await fetch(`${API_BASE_URL}/pos/receipts/${receiptId}/print`, { method: "POST", headers: getHeaders() })
+    return await response.json()
+  }
+
+  useEffect(() => { fetchProfile() }, [])
+
+
+  const addPayment = async (orderId: string, paymentDetails: { amountPaid: number, paymentMethod: string }) => {
+  dispatch({ type: "SET_LOADING", payload: true })
+  try {
+    const response = await fetch(`${API_BASE_URL}/pos/orders/${orderId}/add-payment`, {
+      method: "PUT",
+      headers: getHeaders(),
+      body: JSON.stringify(paymentDetails)
+    })
+    return await response.json()
+  } finally { dispatch({ type: "SET_LOADING", payload: false }) }
+}
 
   return (
     <AppContext.Provider value={{
-      state,
-      dispatch,
-      fetchProducts,
-      fetchSales,
-      createProduct,
-      updateProduct,
-      deleteProduct,
-      completeSale,
+      state, dispatch, login, fetchProfile, logout, fetchInventory,
+      createProduct, updateProduct, deleteProduct, checkoutCart,
+      confirmPayment, addPayment, fetchReceiptsByDate, printReceiptDirectly,
+      fetchTransactionDetail
     }}>
       {children}
     </AppContext.Provider>
@@ -1550,3 +891,12 @@ export function useAppState() {
   if (!ctx) throw new Error("useAppState must be used within AppProvider")
   return ctx
 }
+
+
+
+
+
+
+
+
+

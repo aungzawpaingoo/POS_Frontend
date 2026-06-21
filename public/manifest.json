@@ -1,17 +1,22 @@
 {
-  "name": "Glow Beauty - Skincare & Cosmetics POS",
-  "short_name": "Glow Beauty",
-  "description": "Mobile inventory and point-of-sale for skincare and cosmetic products",
+  "name": "Orbit POS",
+  "short_name": "Orbit POS",
+  "description": "Mobile inventory and point-of-sale for sme",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FDF8F9",
-  "theme_color": "#B5436E",
+  "theme_color": "#2563EB",
   "orientation": "portrait",
-  "icons": [
+   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

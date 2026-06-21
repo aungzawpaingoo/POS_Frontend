@@ -1,759 +1,376 @@
-// "use client"
-
-// import { useRef, useState } from "react"
-// import {
-//   Box,
-//   Typography,
-//   Card,
-//   CardContent,
-//   Button,
-//   Chip,
-//   Divider,
-//   Snackbar,
-//   Alert,
-//   CircularProgress,
-// } from "@mui/material"
-// import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"
-// import DownloadIcon from "@mui/icons-material/Download"
-// import ShareIcon from "@mui/icons-material/Share"
-// import StorefrontIcon from "@mui/icons-material/Storefront"
-// import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome"
-// import HistoryIcon from "@mui/icons-material/History"
-// import { toPng } from "html-to-image"
-// import { useAppState, type SaleRecord } from "@/lib/store"
-
-// export default function ReceiptView() {
-//   const { state } = useAppState()
-//   const [selectedSale, setSelectedSale] = useState<SaleRecord | null>(
-//     state.sales.length > 0 ? state.sales[0] : null
-//   )
-//   const receiptRef = useRef<HTMLDivElement>(null)
-//   const [generating, setGenerating] = useState(false)
-//   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
-//     open: false,
-//     message: "",
-//     severity: "success",
-//   })
-
-//   async function generateReceiptImage(): Promise<string | null> {
-//     if (!receiptRef.current) return null
-//     setGenerating(true)
-//     try {
-//       const dataUrl = await toPng(receiptRef.current, {
-//         backgroundColor: "#FFFFFF",
-//         pixelRatio: 3,
-//         quality: 1,
-//         cacheBust: true,
-//       })
-//       return dataUrl
-//     } catch {
-//       setSnackbar({ open: true, message: "Failed to generate receipt image", severity: "error" })
-//       return null
-//     } finally {
-//       setGenerating(false)
-//     }
-//   }
-
-//   async function handleDownload() {
-//     const dataUrl = await generateReceiptImage()
-//     if (!dataUrl) return
-
-//     const link = document.createElement("a")
-//     link.download = `receipt-${selectedSale?.id || "unknown"}.png`
-//     link.href = dataUrl
-//     link.click()
-//     setSnackbar({ open: true, message: "Receipt downloaded as image", severity: "success" })
-//   }
-
-//   async function handleShare() {
-//     const dataUrl = await generateReceiptImage()
-//     if (!dataUrl) return
-
-//     try {
-//       const response = await fetch(dataUrl)
-//       const blob = await response.blob()
-//       const file = new File([blob], `receipt-${selectedSale?.id || "unknown"}.png`, { type: "image/png" })
-
-//       if (navigator.share && navigator.canShare({ files: [file] })) {
-//         await navigator.share({
-//               title: "Beauty Store Receipt",
-//               text: `Receipt for $${selectedSale?.total.toFixed(2)}`,
-//           files: [file],
-//         })
-//         setSnackbar({ open: true, message: "Receipt shared successfully", severity: "success" })
-//       } else {
-//         handleDownload()
-//       }
-//     } catch {
-//       setSnackbar({ open: true, message: "Sharing cancelled or not supported. Image downloaded instead.", severity: "error" })
-//       handleDownload()
-//     }
-//   }
-
-//   function formatDate(dateStr: string) {
-//     const d = new Date(dateStr)
-//     return d.toLocaleDateString("en-US", {
-//       year: "numeric",
-//       month: "short",
-//       day: "numeric",
-//       hour: "2-digit",
-//       minute: "2-digit",
-//     })
-//   }
-
-//   if (state.sales.length === 0) {
-//     return (
-//       <Box sx={{ textAlign: "center", py: 8, px: 2 }}>
-//         <ReceiptLongIcon sx={{ fontSize: 64, color: "#F5E1E5", mb: 2 }} />
-//         <Typography variant="h6" color="text.secondary" fontWeight={700} gutterBottom>
-//           No Sales Yet
-//         </Typography>
-//         <Typography variant="body2" color="text.secondary">
-//           Complete a sale from the POS tab to generate receipts here.
-//         </Typography>
-//       </Box>
-//     )
-//   }
-
-//   return (
-//     <Box sx={{ pb: 2 }}>
-//       {/* Sales History Horizontal Scroll */}
-//       <Box sx={{ mb: 2.5 }}>
-//         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-//           <HistoryIcon sx={{ color: "#7A6069", fontSize: 20 }} />
-//           <Typography variant="body2" fontWeight={600} color="text.secondary">
-//             Recent Sales
-//           </Typography>
-//         </Box>
-//         <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 0.5 }}>
-//           {state.sales.map((sale) => (
-//             <Card
-//               key={sale.id}
-//               onClick={() => setSelectedSale(sale)}
-//               sx={{
-//                 minWidth: 140,
-//                 cursor: "pointer",
-//                 transition: "all 0.2s",
-//                 "&:active": { transform: "scale(0.97)" },
-//                 ...(selectedSale?.id === sale.id && {
-//                   borderColor: "#B5436E",
-//                   borderWidth: 2,
-//                   bgcolor: "#FDF2F8",
-//                 }),
-//               }}
-//             >
-//               <CardContent sx={{ p: "12px !important", "&:last-child": { pb: "12px !important" } }}>
-//                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-//                   {formatDate(sale.date)}
-//                 </Typography>
-//                 <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
-//                   ${sale.total.toFixed(2)}
-//                 </Typography>
-//                 <Chip
-//                   label={`${sale.items.length} items`}
-//                   size="small"
-//                   sx={{ fontSize: "0.6rem", height: 20, mt: 0.5, bgcolor: "#FDF2F4", color: "#7A6069", fontWeight: 600 }}
-//                 />
-//               </CardContent>
-//             </Card>
-//           ))}
-//         </Box>
-//       </Box>
-
-//       {selectedSale && (
-//         <>
-//           {/* Action Buttons */}
-//           <Box sx={{ display: "flex", gap: 1.5, mb: 2.5 }}>
-//             <Button
-//               variant="contained"
-//               fullWidth
-//               startIcon={generating ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
-//               disabled={generating}
-//               onClick={handleDownload}
-//               sx={{ py: 1.2, fontWeight: 700 }}
-//             >
-//               {generating ? "Generating..." : "Download"}
-//             </Button>
-//             <Button
-//               variant="outlined"
-//               fullWidth
-//               startIcon={<ShareIcon />}
-//               onClick={handleShare}
-//               disabled={generating}
-//               sx={{ py: 1.2, fontWeight: 700, borderColor: "#B5436E", color: "#B5436E" }}
-//             >
-//               Share
-//             </Button>
-//           </Box>
-
-//           {/* Receipt Preview */}
-//           <Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ mb: 1 }}>
-//             Receipt Preview
-//           </Typography>
-//           <Box
-//             sx={{
-//               borderRadius: 3,
-//               overflow: "hidden",
-//               boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-//               border: "1px solid #F5E1E5",
-//             }}
-//           >
-//             <Box
-//               ref={receiptRef}
-//               sx={{
-//                 bgcolor: "#FFFFFF",
-//                 p: 3,
-//                 minWidth: 320,
-//               }}
-//             >
-//               {/* Receipt Header */}
-//               <Box sx={{ textAlign: "center", mb: 2.5 }}>
-//                 <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-//                   <AutoAwesomeIcon sx={{ fontSize: 32, color: "#B5436E" }} />
-//                 </Box>
-//                 <Typography variant="h6" fontWeight={800} sx={{ color: "#2D1520", letterSpacing: "-0.025em" }}>
-//                   Glow Beauty
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block", mt: 0.25, fontSize: "0.65rem" }}>
-//                   Skincare & Cosmetics
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block", mt: 0.5 }}>
-//                   Thank you for your purchase
-//                 </Typography>
-//               </Box>
-
-//               {/* Dashed divider */}
-//               <Box
-//                 sx={{
-//                   borderBottom: "2px dashed #F5E1E5",
-//                   mb: 2,
-//                 }}
-//               />
-
-//               {/* Receipt Info */}
-//               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-//                   Receipt #
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#7A6069", fontFamily: "monospace", fontWeight: 600 }}>
-//                   {selectedSale.id.toUpperCase()}
-//                 </Typography>
-//               </Box>
-//               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-//                   Date
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#7A6069", fontWeight: 600 }}>
-//                   {formatDate(selectedSale.date)}
-//                 </Typography>
-//               </Box>
-
-//               {/* Dashed divider */}
-//               <Box sx={{ borderBottom: "2px dashed #F5E1E5", mb: 2 }} />
-
-//               {/* Column Headers */}
-//               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, flex: 1 }}>
-//                   Item
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, width: 40, textAlign: "center" }}>
-//                   Qty
-//                 </Typography>
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, width: 70, textAlign: "right" }}>
-//                   Amount
-//                 </Typography>
-//               </Box>
-
-//               {/* Items */}
-//               {selectedSale.items.map((item, idx) => (
-//                 <Box key={idx}>
-//                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", py: 0.75 }}>
-//                     <Box sx={{ flex: 1, minWidth: 0, pr: 1 }}>
-//                       <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520", fontSize: "0.85rem" }}>
-//                         {item.product.name}
-//                       </Typography>
-//                       <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-//                         @ ${item.product.price.toFixed(2)}
-//                       </Typography>
-//                     </Box>
-//                     <Typography
-//                       variant="body2"
-//                       sx={{ color: "#7A6069", width: 40, textAlign: "center", fontWeight: 600 }}
-//                     >
-//                       {item.quantity}
-//                     </Typography>
-//                     <Typography
-//                       variant="body2"
-//                       fontWeight={700}
-//                       sx={{ color: "#2D1520", width: 70, textAlign: "right" }}
-//                     >
-//                       ${(item.product.price * item.quantity).toFixed(2)}
-//                     </Typography>
-//                   </Box>
-//                   {idx < selectedSale.items.length - 1 && (
-//                     <Divider sx={{ borderStyle: "dotted", borderColor: "#FDF2F4" }} />
-//                   )}
-//                 </Box>
-//               ))}
-
-//               {/* Dashed divider */}
-//               <Box sx={{ borderBottom: "2px dashed #F5E1E5", my: 2 }} />
-
-//               {/* Totals */}
-//               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-//                 <Typography variant="body2" sx={{ color: "#7A6069" }}>
-//                   Subtotal
-//                 </Typography>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-//                   ${selectedSale.total.toFixed(2)}
-//                 </Typography>
-//               </Box>
-//               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-//                 <Typography variant="body2" sx={{ color: "#7A6069" }}>
-//                   Tax
-//                 </Typography>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-//                   $0.00
-//                 </Typography>
-//               </Box>
-//               <Box
-//                 sx={{
-//                   display: "flex",
-//                   justifyContent: "space-between",
-//                   mt: 1.5,
-//                   p: 1.5,
-//                   bgcolor: "#FDF2F8",
-//                   borderRadius: 2,
-//                 }}
-//               >
-//                 <Typography variant="subtitle1" fontWeight={800} sx={{ color: "#2D1520" }}>
-//                   Total
-//                 </Typography>
-//                 <Typography variant="subtitle1" fontWeight={800} sx={{ color: "#B5436E" }}>
-//                   ${selectedSale.total.toFixed(2)}
-//                 </Typography>
-//               </Box>
-
-//               {/* Footer */}
-//               <Box sx={{ textAlign: "center", mt: 3 }}>
-//                 <Box sx={{ borderBottom: "2px dashed #F5E1E5", mb: 2 }} />
-//                 <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block" }}>
-//                   Items sold: {selectedSale.items.reduce((s, i) => s + i.quantity, 0)}
-//                 </Typography>
-//                 <Typography
-//                   variant="caption"
-//                   sx={{ color: "#C4A3AF", display: "block", mt: 1, fontWeight: 500 }}
-//                 >
-//                   Powered by Glow Beauty
-//                 </Typography>
-//               </Box>
-//             </Box>
-//           </Box>
-//         </>
-//       )}
-
-//       {/* Snackbar */}
-//       <Snackbar
-//         open={snackbar.open}
-//         autoHideDuration={2500}
-//         onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-//         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-//       >
-//         <Alert
-//           severity={snackbar.severity}
-//           onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-//           sx={{ width: "100%", fontWeight: 600 }}
-//           variant="filled"
-//         >
-//           {snackbar.message}
-//         </Alert>
-//       </Snackbar>
-//     </Box>
-//   )
-// }
-
-
-
-
-
 "use client"
 
-import { useRef, useState } from "react"
+import React, { useState, useEffect } from 'react'
+import { useAppState } from '../lib/store'
 import {
   Box,
   Typography,
+  Button,
   Card,
   CardContent,
-  Button,
-  Chip,
   Divider,
-  Snackbar,
-  Alert,
+  Grid,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   CircularProgress,
-} from "@mui/material"
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"
-import DownloadIcon from "@mui/icons-material/Download"
-import ShareIcon from "@mui/icons-material/Share"
-import StorefrontIcon from "@mui/icons-material/Storefront"
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome"
-import HistoryIcon from "@mui/icons-material/History"
-import { toPng } from "html-to-image"
-import { useAppState, type SaleRecord } from "@/lib/store"
+  Alert
+} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+  ExpandMore as ExpandMoreIcon,
+  Print as PrintIcon,
+  CalendarMonth as CalendarIcon,
+  Refresh as RefreshIcon,
+  FolderOff as EmptyIcon
+} from '@mui/icons-material'
 
-export default function ReceiptView() {
-  const { state } = useAppState()
-  const [selectedSale, setSelectedSale] = useState<SaleRecord | null>(
-    state.sales.length > 0 ? state.sales[0] : null
-  )
-  const receiptRef = useRef<HTMLDivElement>(null)
-  const [generating, setGenerating] = useState(false)
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
-    open: false,
-    message: "",
-    severity: "success",
+interface ReceiptItem {
+  name: string
+  price: string | number
+  quantity: number
+}
+
+interface Receipt {
+  id: string
+  time: string
+  total: number
+  paid: number
+  method: 'cash' | 'kpay' | string
+  change_returned: number
+  mode: 'full' | 'split' | string
+  items?: ReceiptItem[]
+}
+
+// interface PaymentViewProps {
+//   onPaymentComplete?: () => void
+// }
+
+interface ReceiptViewProps {
+  onPaymentComplete?: () => void
+  onCollectBalance?: (orderId: string, balance: number) => void
+}
+
+// export default function PaymentView({ onPaymentComplete }: PaymentViewProps) {
+export default function ReceiptView({ onPaymentComplete, onCollectBalance }: ReceiptViewProps) {
+  const { state, fetchReceiptsByDate, printReceiptDirectly } = useAppState()
+  const receipts = (state.receipts || []) as Receipt[]
+  const isLoading = state.isLoading
+
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date()
+    const yyyy = today.getFullYear()
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const dd = String(today.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
   })
 
-  async function generateReceiptImage(): Promise<string | null> {
-    if (!receiptRef.current) return null
-    setGenerating(true)
-    try {
-      const dataUrl = await toPng(receiptRef.current, {
-        backgroundColor: "#FFFFFF",
-        pixelRatio: 3,
-        quality: 1,
-        cacheBust: true,
-      })
-      return dataUrl
-    } catch {
-      setSnackbar({ open: true, message: "Failed to generate receipt image", severity: "error" })
-      return null
-    } finally {
-      setGenerating(false)
+  const [printingId, setPrintingId] = useState<string | null>(null)
+  const [uiFeedback, setUiFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  useEffect(() => {
+    fetchReceiptsByDate(selectedDate)
+  }, [selectedDate])
+
+  const handleRefreshData = () => {
+    fetchReceiptsByDate(selectedDate)
+  }
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      setSelectedDate(e.target.value)
     }
   }
 
-  async function handleDownload() {
-    const dataUrl = await generateReceiptImage()
-    if (!dataUrl) return
-
-    const link = document.createElement("a")
-    link.download = `receipt-${selectedSale?.id || "unknown"}.png`
-    link.href = dataUrl
-    link.click()
-    setSnackbar({ open: true, message: "Receipt downloaded as image", severity: "success" })
-  }
-
-  async function handleShare() {
-    const dataUrl = await generateReceiptImage()
-    if (!dataUrl) return
-
+  const parseDisplayTime = (timeString: string) => {
+    if (!timeString || !timeString.includes(':')) return timeString
     try {
-      const response = await fetch(dataUrl)
-      const blob = await response.blob()
-      const file = new File([blob], `receipt-${selectedSale?.id || "unknown"}.png`, { type: "image/png" })
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: "Beauty Store Receipt",
-          text: `Receipt for $${selectedSale?.total.toFixed(2)}`,
-          files: [file],
-        })
-        setSnackbar({ open: true, message: "Receipt shared successfully", severity: "success" })
-      } else {
-        handleDownload()
-      }
+      const [hours, minutes] = timeString.split(':')
+      const hour = parseInt(hours)
+      const ampm = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${displayHour}:${minutes} ${ampm}`
     } catch {
-      setSnackbar({ open: true, message: "Sharing cancelled or not supported. Image downloaded instead.", severity: "error" })
-      handleDownload()
+      return timeString
     }
   }
 
-  function formatDate(dateStr: string) {
-    const d = new Date(dateStr)
-    return d.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  const totalSalesForToday = receipts.reduce((sum, item) => sum + (item.paid || 0), 0)
 
-  if (state.isLoading && state.sales.length === 0) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
+  const handlePrintReceiptJob = async (receiptId: string) => {
+    setPrintingId(receiptId)
+    setUiFeedback(null)
 
-  if (state.sales.length === 0) {
-    return (
-      <Box sx={{ textAlign: "center", py: 8, px: 2 }}>
-        <ReceiptLongIcon sx={{ fontSize: 64, color: "#F5E1E5", mb: 2 }} />
-        <Typography variant="h6" color="text.secondary" fontWeight={700} gutterBottom>
-          No Sales Yet
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Complete a sale from the POS tab to generate receipts here.
-        </Typography>
-      </Box>
-    )
+    const result = await printReceiptDirectly(receiptId)
+
+    if (result && result.status === 'success') {
+      setUiFeedback({ type: 'success', text: 'အောင်မြင်ပါသည် - ဘောက်ချာ ပရင်တာသို့ ပေးပို့ပြီးပါပြီ။' })
+    } else {
+      setUiFeedback({ type: 'error', text: result?.message || 'ပရင့်ထုတ်ရန် အဆင်မပြေပါ - Printer buffer allocation error.' })
+    }
+    setPrintingId(null)
   }
 
   return (
-    <Box sx={{ pb: 2 }}>
-      {/* Sales History Horizontal Scroll */}
-      <Box sx={{ mb: 2.5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <HistoryIcon sx={{ color: "#7A6069", fontSize: 20 }} />
-          <Typography variant="body2" fontWeight={600} color="text.secondary">
-            Recent Sales
+    <Box sx={{ width: { xs: '100%', md: '95%' }, mx: 'auto', pb: 6 }}>
+      {uiFeedback && (
+        <Alert
+          severity={uiFeedback.type}
+          onClose={() => setUiFeedback(null)}
+          sx={{ mb: 3, borderRadius: '8px', border: `1px solid ${uiFeedback.type === 'success' ? '#D1E7DD' : '#F8D7DA'}`, boxShadow: 'none' }}
+        >
+          {uiFeedback.text}
+        </Alert>
+      )}
+
+      {/* Header Panel Layout with Date Filter adjusted to span 95% cleanly */}
+      <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} gap={3} mb={4}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 900, color: '#2D1520', mb: 2 }}>
+            ဘောက်ချာမှတ်တမ်း စီမံခန့်ခွဲမှု
+          </Typography>
+          <Typography variant="subtitle1" sx={{ color: '#7A6069', fontWeight: 500 }}>
+            ရောင်းချပြီးခဲ့သော စာရင်းမှတ်တမ်းများအား နေ့ရက်အလိုက် ပြန်လည်စစ်ဆေးခြင်း
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 0.5 }}>
-          {state.sales.map((sale) => (
-            <Card
-              key={sale.id}
-              onClick={() => setSelectedSale(sale)}
-              sx={{
-                minWidth: 140,
-                cursor: "pointer",
-                transition: "all 0.2s",
-                "&:active": { transform: "scale(0.97)" },
-                ...(selectedSale?.id === sale.id && {
-                  borderColor: "#B5436E",
-                  borderWidth: 2,
-                  bgcolor: "#FDF2F8",
-                }),
-              }}
-            >
-              <CardContent sx={{ p: "12px !important", "&:last-child": { pb: "12px !important" } }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
-                  {formatDate(sale.date)}
-                </Typography>
-                <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
-                  ${sale.total.toFixed(2)}
-                </Typography>
-                <Chip
-                  label={`${sale.items.length} items`}
-                  size="small"
-                  sx={{ fontSize: "0.6rem", height: 20, mt: 0.5, bgcolor: "#FDF2F4", color: "#7A6069", fontWeight: 600 }}
-                />
-              </CardContent>
-            </Card>
-          ))}
+
+        {/* Date Filter Action Segment - Spans across smoothly */}
+        <Box display="flex" alignItems="center" gap={1.5} sx={{ width: { xs: '100%', md: 'auto' }, flexGrow: { xs: 0, md: 0.5 }, justifyContent: 'flex-end' }}>
+          <TextField
+            type="date"
+            value={selectedDate}
+            onChange={handleDateInputChange}
+            size="medium"
+            InputProps={{
+              startAdornment: <CalendarIcon sx={{ color: '#2563EB', mr: 1, fontSize: '20px' }} />,
+            }}
+            sx={{
+              bgcolor: '#ffffff',
+              width: { xs: '100%', sm: '320px' },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                borderColor: '#F5E1E5',
+                '& fieldset': { borderColor: '#F5E1E5' },
+                '&:hover fieldset': { borderColor: '#2563EB' },
+                '&.Mui-focused fieldset': { borderColor: '#2563EB', borderWidth: '1px' }
+              }
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={handleRefreshData}
+            disabled={isLoading}
+            sx={{
+              minWidth: '50px',
+              width: '50px',
+              height: '50px',
+              p: 0,
+              borderRadius: '8px',
+              borderColor: '#F5E1E5',
+              color: '#2D1520',
+              '&:hover': { borderColor: '#2563EB', bgcolor: '#FDF8F9' }
+            }}
+          >
+            <RefreshIcon sx={{ fontSize: '20px' }} />
+          </Button>
         </Box>
       </Box>
 
-      {selectedSale && (
-        <>
-          {/* Action Buttons */}
-          <Box sx={{ display: "flex", gap: 1.5, mb: 2.5 }}>
-            <Button
-              variant="contained"
-              fullWidth
-              startIcon={generating ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
-              disabled={generating}
-              onClick={handleDownload}
-              sx={{ py: 1.2, fontWeight: 700 }}
-            >
-              {generating ? "Generating..." : "Download"}
-            </Button>
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<ShareIcon />}
-              onClick={handleShare}
-              disabled={generating}
-              sx={{ py: 1.2, fontWeight: 700, borderColor: "#B5436E", color: "#B5436E" }}
-            >
-              Share
-            </Button>
-          </Box>
-
-          {/* Receipt Preview */}
-          <Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ mb: 1 }}>
-            Receipt Preview
+      {/* Dynamic Metric Display Wrapper: Today Sales Block (ယနေ့ရောင်းရငွေ) */}
+      <Card sx={{ border: '1px solid #2563EB', borderRadius: '12px', boxShadow: 'none', bgcolor: '#FDF8F9', mb: 4 }}>
+        <CardContent sx={{ p: '24px !important', display: 'block', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="body1" sx={{ fontWeight: 800, color: '#7A6069' }}>
+            ယနေ့ရောင်းရငွေစုစုပေါင်း
           </Typography>
-          <Box
-            sx={{
-              borderRadius: 3,
-              overflow: "hidden",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-              border: "1px solid #F5E1E5",
-            }}
-          >
-            <Box
-              ref={receiptRef}
-              sx={{
-                bgcolor: "#FFFFFF",
-                p: 3,
-                minWidth: 320,
-              }}
-            >
-              {/* Receipt Header */}
-              <Box sx={{ textAlign: "center", mb: 2.5 }}>
-                <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-                  <AutoAwesomeIcon sx={{ fontSize: 32, color: "#B5436E" }} />
-                </Box>
-                <Typography variant="h6" fontWeight={800} sx={{ color: "#2D1520", letterSpacing: "-0.025em" }}>
-                  Glow Beauty
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block", mt: 0.25, fontSize: "0.65rem" }}>
-                  Skincare & Cosmetics
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block", mt: 0.5 }}>
-                  Thank you for your purchase
-                </Typography>
-              </Box>
+          <Typography variant="h6" sx={{ fontWeight: 900, color: '#2563EB', mt: 2 }}>
+            {totalSalesForToday.toLocaleString()} MMK
+          </Typography>
+        </CardContent>
+      </Card>
 
-              {/* Dashed divider */}
-              <Box
-                sx={{
-                  borderBottom: "2px dashed #F5E1E5",
-                  mb: 2,
-                }}
-              />
+      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#2D1520', mb: 2 }}>
+        ဘောက်ချာစာရင်း ({receipts.length} စောင်)
+      </Typography>
 
-              {/* Receipt Info */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-                  Receipt #
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#7A6069", fontFamily: "monospace", fontWeight: 600 }}>
-                  {selectedSale.id.toUpperCase()}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-                  Date
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#7A6069", fontWeight: 600 }}>
-                  {formatDate(selectedSale.date)}
-                </Typography>
-              </Box>
-
-              {/* Dashed divider */}
-              <Box sx={{ borderBottom: "2px dashed #F5E1E5", mb: 2 }} />
-
-              {/* Column Headers */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, flex: 1 }}>
-                  Item
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, width: 40, textAlign: "center" }}>
-                  Qty
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#C4A3AF", fontWeight: 600, width: 70, textAlign: "right" }}>
-                  Amount
-                </Typography>
-              </Box>
-
-              {/* Items */}
-              {selectedSale.items.map((item, idx) => (
-                <Box key={idx}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", py: 0.75 }}>
-                    <Box sx={{ flex: 1, minWidth: 0, pr: 1 }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520", fontSize: "0.85rem" }}>
-                        {item.product.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "#C4A3AF" }}>
-                        @ ${item.product.price.toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#7A6069", width: 40, textAlign: "center", fontWeight: 600 }}
-                    >
-                      {item.quantity}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      fontWeight={700}
-                      sx={{ color: "#2D1520", width: 70, textAlign: "right" }}
-                    >
-                      ${(item.product.price * item.quantity).toFixed(2)}
-                    </Typography>
-                  </Box>
-                  {idx < selectedSale.items.length - 1 && (
-                    <Divider sx={{ borderStyle: "dotted", borderColor: "#FDF2F4" }} />
-                  )}
-                </Box>
-              ))}
-
-              {/* Dashed divider */}
-              <Box sx={{ borderBottom: "2px dashed #F5E1E5", my: 2 }} />
-
-              {/* Totals */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                <Typography variant="body2" sx={{ color: "#7A6069" }}>
-                  Subtotal
-                </Typography>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-                  ${selectedSale.total.toFixed(2)}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                <Typography variant="body2" sx={{ color: "#7A6069" }}>
-                  Tax
-                </Typography>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#2D1520" }}>
-                  $0.00
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mt: 1.5,
-                  p: 1.5,
-                  bgcolor: "#FDF2F8",
-                  borderRadius: 2,
-                }}
-              >
-                <Typography variant="subtitle1" fontWeight={800} sx={{ color: "#2D1520" }}>
-                  Total
-                </Typography>
-                <Typography variant="subtitle1" fontWeight={800} sx={{ color: "#B5436E" }}>
-                  ${selectedSale.total.toFixed(2)}
-                </Typography>
-              </Box>
-
-              {/* Footer */}
-              <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Box sx={{ borderBottom: "2px dashed #F5E1E5", mb: 2 }} />
-                <Typography variant="caption" sx={{ color: "#C4A3AF", display: "block" }}>
-                  Items sold: {selectedSale.items.reduce((s, i) => s + i.quantity, 0)}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#C4A3AF", display: "block", mt: 1, fontWeight: 500 }}
-                >
-                  Powered by Glow Beauty
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-        </>
+      {isLoading && (
+        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={10} gap={2}>
+          <CircularProgress size={36} sx={{ color: '#2563EB' }} />
+          <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 600 }}>
+            ဒေတာများကို ရယူနေပါသည်...
+          </Typography>
+        </Box>
       )}
 
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={2500}
-        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-          sx={{ width: "100%", fontWeight: 600 }}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      {!isLoading && receipts.length === 0 && (
+        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={8} sx={{ border: '1px dashed #F5E1E5', borderRadius: '12px', bgcolor: '#ffffff' }}>
+          <EmptyIcon sx={{ color: '#C4A3AF', fontSize: 48, mb: 1.5 }} />
+          <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 700, textAlign: 'center', lineHeight: 1.6 }}>
+            ရွေးချယ်ထားသော ရက်စွဲအတွက်<br />ဘောက်ချာမှတ်တမ်း မရှိပါ။
+          </Typography>
+        </Box>
+      )}
+
+      {!isLoading && receipts.length > 0 && (
+        <Box display="flex" flexDirection="column" gap={1.5}>
+          {receipts.map((item) => (
+            <Accordion
+              key={item.id}
+              disableGutters
+              elevation={0}
+              sx={{
+                border: '1px solid #F5E1E5',
+                borderRadius: '8px !important',
+                overflow: 'hidden',
+                bgcolor: '#ffffff',
+                '&:before': { display: 'none' }
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ color: '#2D1520' }} />}
+                sx={{ px: 2.5, py: 0.5, '&.Mui-expanded': { bgcolor: '#FDF8F9' } }}
+              >
+                <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" pr={2}>
+                  <Typography variant="body1" sx={{ fontWeight: 800, color: '#2D1520' }}>
+                    Order Number - {item.id}
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#7A6069', fontWeight: 700 }}>
+                    {parseDisplayTime(item.time)}
+                  </Typography>
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails sx={{ px: 2.5, py: 3, borderTop: '1px solid #F5E1E5', bgcolor: '#ffffff' }}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={6} display="flex" flexDirection="column" gap={1.5}>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 600 }}>ပေးချေမှု</Typography>
+                      <Typography variant="body2" sx={{ color: '#2D1520', fontWeight: 800 }}>
+                        {item.method === 'cash' ? 'လက်ငင်းငွေသား' : 'မိုဘိုင်းလ်ဖုန်း (QR)'}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 600 }}>ပြန်အမ်းငွေ</Typography>
+                      <Typography variant="body2" sx={{ color: '#2D1520', fontWeight: 800 }}>
+                        {item.change_returned.toLocaleString()} MMK
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 600 }}>ငွေပေးချေမှု ပုံစံ</Typography>
+                      <Typography variant="body2" sx={{ color: '#2D1520', fontWeight: 800 }}>
+                        {item.mode === 'full' ? 'အပြည့်အဝပေးချေမှု' : 'စရန်ငွေ / ခွဲပေးမှု'}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" justifyContent="space-between" pt={0.5}>
+                      <Typography variant="body2" sx={{ color: '#7A6069', fontWeight: 600 }}>ယခုလက်ခံရရှိငွေ</Typography>
+                      <Typography variant="body2" sx={{ color: '#2D1520', fontWeight: 900 }}>
+                        {item.paid.toLocaleString()} MMK
+                      </Typography>
+                    </Box>
+
+                    {item.mode === 'split' && (item.total - item.paid) > 0 && (
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        sx={{ bgcolor: '#FFF5F5', p: 1.5, borderRadius: '6px', border: '1px solid #FFE3E3' }}
+                      >
+                        <Typography variant="body2" sx={{ color: '#E53E3E', fontWeight: 700 }}>ရှင်းရမည့်လက်ကျန်</Typography>
+                        <Typography variant="body2" sx={{ color: '#E53E3E', fontWeight: 900 }}>
+                          {(item.total - item.paid).toLocaleString()} MMK
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {item.mode === 'split' && (item.total - item.paid) > 0 && onCollectBalance && (
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        color="warning"
+                        onClick={() => onCollectBalance(item.id, item.total - item.paid)}
+                        sx={{
+                          mb: 2,
+                          bgcolor: '#ED8936',
+                          fontWeight: 700,
+                          textTransform: 'none',
+                          borderRadius: '8px'
+                        }}
+                      >
+                        လက်ကျန်ငွေကောက်ခံရန်
+                      </Button>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="caption" sx={{ color: '#C4A3AF', fontWeight: 800, letterSpacing: '0.5px', display: 'block', mb: 1.5 }}>
+                      ပစ္စည်းများ (ITEMS)
+                    </Typography>
+
+                    {item.items && item.items.length > 0 ? (
+                      <Box display="flex" flexDirection="column" gap={1.5}>
+                        {item.items.map((product, idx) => {
+                          const parsedPrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price
+                          return (
+                            <Box key={idx} display="flex" justifyContent="space-between" alignItems="flex-start">
+                              <Box sx={{ maxWidth: '70%' }}>
+                                <Typography variant="body2" sx={{ fontWeight: 700, color: '#2D1520', mb: 0.25 }}>
+                                  {product.name}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#7A6069', display: 'block' }}>
+                                  {parsedPrice.toLocaleString()} MMK × {product.quantity}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" sx={{ fontWeight: 800, color: '#2D1520', pt: 0.5 }}>
+                                {(parsedPrice * product.quantity).toLocaleString()} MMK
+                              </Typography>
+                            </Box>
+                          )
+                        })}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" sx={{ color: '#7A6069', fontStyle: 'italic' }}>
+                        ပစ္စည်းအချက်အလက်များ မရရှိပါ။
+                      </Typography>
+                    )}
+
+                    <Divider sx={{ borderColor: '#F5E1E5', my: 2 }} />
+
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#2D1520' }}>စုစုပေါင်းငွေ</Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#2563EB' }}>
+                        {item.total.toLocaleString()} MMK
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      disabled={printingId === item.id}
+                      startIcon={printingId === item.id ? <CircularProgress size={16} color="inherit" /> : <PrintIcon />}
+                      onClick={() => handlePrintReceiptJob(item.id)}
+                      sx={{
+                        bgcolor: '#2563EB',
+                        color: '#ffffff',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        boxShadow: 'none',
+                        borderRadius: '8px',
+                        py: 1,
+                        '&:hover': { bgcolor: '#1D4ED8', boxShadow: 'none' },
+                        '&.Mui-disabled': { bgcolor: '#93C5FD', color: '#ffffff' }
+                      }}
+                    >
+                      ဘောက်ချာဖြတ်ပိုင်းထုတ်မည်
+                    </Button>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </Box>
+      )}
     </Box>
   )
 }

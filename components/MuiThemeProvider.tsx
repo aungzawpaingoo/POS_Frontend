@@ -6,7 +6,7 @@ import { type ReactNode } from "react"
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#B5436E",
+      main: "#2563EB",
       light: "#D4729A",
       dark: "#8C2A52",
       contrastText: "#FFFFFF",
@@ -108,7 +108,7 @@ const theme = createTheme({
           minWidth: "auto",
           padding: "6px 0",
           "&.Mui-selected": {
-            color: "#B5436E",
+            color: "#2563EB",
           },
         },
       },

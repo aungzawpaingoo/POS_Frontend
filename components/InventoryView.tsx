@@ -1091,7 +1091,7 @@ export default function InventoryView() {
                         <Chip
                           label="Low Stock"
                           size="medium"
-                          sx={{ position: 'absolute', width: '100%', top: 0, left: 0, bgcolor: '#2563EB', color: '#ffffff', fontWeight: 800, fontSize: '1 rem', height: 25, borderRadius: '0px' }}
+                          sx={{ position: 'absolute', width: '100%', top: 0, left: 0, bgcolor: 'black', color: '#ffffff', fontWeight: 800, fontSize: '1 rem', height: 30, borderRadius: '0px' }}
                         />
                       )}
                     </Box>
@@ -1132,6 +1132,10 @@ export default function InventoryView() {
                         {/* Replace the old Typography stock block with this */}
                         <Typography variant="caption" sx={{ color: '#7A6069', fontWeight: 700, fontSize: '0.78rem', display: 'block' }}>
                           Stock: {Math.floor(product.stock)}
+                        </Typography>
+
+                         <Typography variant="caption" sx={{ color: '#7A6069', fontWeight: 700, fontSize: '0.78rem', display: 'block' }}>
+                          SKU: {product.sku}
                         </Typography>
 
 

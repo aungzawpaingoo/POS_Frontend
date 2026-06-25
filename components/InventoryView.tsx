@@ -1291,6 +1291,14 @@ export default function InventoryView() {
               >
                 {!imagePreview && <CloudUploadIcon sx={{ fontSize: 40 }} />}
               </Avatar>
+              {/* <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                disabled={isSubmitting}
+              /> */}
               <input
                 type="file"
                 accept="image/*"
@@ -1299,7 +1307,16 @@ export default function InventoryView() {
                 onChange={handleFileChange}
                 disabled={isSubmitting}
               />
-              <Button
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                id="camera-only-input"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                disabled={isSubmitting}
+              />
+              {/* <Button
                 variant="outlined"
                 size="small"
                 onClick={() => fileInputRef.current?.click()}
@@ -1307,7 +1324,46 @@ export default function InventoryView() {
                 sx={{ color: "#2563EB", borderColor: "#F5E1E5", textTransform: "none", fontWeight: 700, "&:hover": { borderColor: "#C4A3AF", bgcolor: "#FDF8F9" } }}
               >
                 ပုံတင်ရန် ရွေးချယ်ပါ
-              </Button>
+              </Button> */}
+               <Box sx={{ display: "flex", gap: 1.5, width: "100%", mt: 1 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="medium"
+                  disabled={isSubmitting}
+                  onClick={() => document.getElementById("camera-only-input")?.click()}
+                  sx={{
+                    color: "#2D1520",
+                    borderColor: "#F5E1E5",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: "8px",
+                    height: 40,
+                    fontSize: '0.5 rem',
+                    "&:hover": { borderColor: "#2563EB", bgcolor: "#FDF8F9" }
+                  }}
+                >
+                  Camera
+                </Button>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="medium"
+                  disabled={isSubmitting}
+                  onClick={() => fileInputRef.current?.click()}
+                  sx={{
+                    color: "#2563EB",
+                    borderColor: "#F5E1E5",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: "8px",
+                    height: 40,
+                    "&:hover": { borderColor: "#2563EB", bgcolor: "#EBF2FF" }
+                  }}
+                >
+                  Gallery
+                </Button>
+              </Box>
             </Box>
 
             <TextField label="ပစ္စည်းအမည်" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth required size="medium" disabled={isSubmitting} />

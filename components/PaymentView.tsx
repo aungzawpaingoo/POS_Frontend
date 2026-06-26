@@ -35,7 +35,7 @@ interface PaymentViewProps {
 
 export default function PaymentView({ orderId, totalAmount = 0, onPaymentComplete, isTopUp = false }: PaymentViewProps) {
 
-//  console.log("Payment View received ", { orderId, totalAmount });
+ console.log("Payment View received ", { orderId, totalAmount });
   // const { state, confirmPayment } = useAppState()
   const { state, confirmPayment, addPayment, fetchTransactionDetail } = useAppState()
   const userRole = state.user?.role === 'owner' ? 'owner' : 'employee'
@@ -55,7 +55,7 @@ export default function PaymentView({ orderId, totalAmount = 0, onPaymentComplet
       if (orderId) {
         try {
           const data = await fetchTransactionDetail(orderId);
-         // console.log("Transaction Details:", data);
+         console.log("Transaction Details:", data);
           // Example: If you have a state for the order details:
           // setOrderData(data); 
         } catch (err) {

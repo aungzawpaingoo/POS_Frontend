@@ -521,6 +521,10 @@ export interface CartItem {
   product: Product
   quantity: number
   unit_sold: 'main' | 'sub'
+  //Discount Part Added//
+  customPrice?: number
+  discountType?: 'percent' | 'flat'
+  discountValue?: number
 }
 
 export interface SaleRecord {
@@ -572,6 +576,7 @@ interface AppState {
 
 type Action =
   | { type: "SET_LOADING"; payload: boolean }
+  | { type: "UPDATE_CART_DISCOUNT"; payload: { productId: string; discountType: 'percent' | 'flat'; discountValue: number; customPrice: number | undefined } }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "SET_INVENTORY"; payload: { products: Product[]; metrics: InventoryMetrics & { dailyRevenue?: number; transactionsCount?: number } } }
   | { type: "ADD_TO_CART"; payload: { productId: string; quantity: number; unit_sold: 'main' | 'sub' } }
@@ -615,7 +620,7 @@ function appReducer(state: AppState, action: Action): AppState {
 
       const { unit_sold, quantity } = action.payload
       const existingItem = state.cart.find((item) => item.product.id === action.payload.productId && item.unit_sold === unit_sold)
-      
+
       const newQty = (existingItem ? existingItem.quantity : 0) + quantity
 
       return {
@@ -624,6 +629,23 @@ function appReducer(state: AppState, action: Action): AppState {
           ? state.cart.map((item) => item.product.id === action.payload.productId && item.unit_sold === unit_sold ? { ...item, quantity: newQty } : item)
           : [...state.cart, { product: { ...product }, quantity, unit_sold }]
       }
+    }
+
+   case "UPDATE_CART_DISCOUNT": {
+      const { productId, discountType, discountValue, customPrice } = action.payload;
+      return {
+        ...state,
+        cart: state.cart.map((item) =>
+          item.product.id === productId
+            ? { 
+                ...item, 
+                discountType: customPrice === undefined ? undefined : discountType, 
+                discountValue: customPrice === undefined ? undefined : discountValue, 
+                customPrice 
+              }
+            : item
+        ),
+      };
     }
 
     case "REMOVE_FROM_CART":
@@ -675,8 +697,9 @@ const AppContext = createContext<{
   updateProduct: (id: string, productData: FormData | Partial<Product>) => Promise<void>
   deleteProduct: (id: string) => Promise<void>
   checkoutCart: () => Promise<{ status: string; orderId: string }>
+  applyDiscountToCartItem: (productId: string, value: number, type: 'percent' | 'flat' | 'clear') => void
   confirmPayment: (orderId: string, paymentDetails: any) => Promise<{ status: string; message?: string }>
-  
+
   addPayment: (orderId: string, paymentDetails: { amountPaid: number, paymentMethod: string }) => Promise<any>
 
   fetchReceiptsByDate: (dateKey: string) => Promise<void>
@@ -708,29 +731,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // }
 
   const fetchProfile = async () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-  if (!token) return
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, { headers: getHeaders() })
-    if (!response.ok) throw new Error("Session timed out")
-    
-    const data = await response.json()
-    
-    // Based on your console log, the real user data is inside 'data.user'
-    // We extract that specific object to make state management clean
-    const userProfile = data.user || data; 
-    
-    dispatch({ 
-      type: "AUTH_SUCCESS", 
-      payload: { 
-        user: { 
-          ...userProfile, 
-          id: userProfile._id || userProfile.id 
-        } 
-      } 
-    })
-  } catch { logout() }
-}
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    if (!token) return
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, { headers: getHeaders() })
+      if (!response.ok) throw new Error("Session timed out")
+
+      const data = await response.json()
+
+      // Based on your console log, the real user data is inside 'data.user'
+      // We extract that specific object to make state management clean
+      const userProfile = data.user || data;
+
+      dispatch({
+        type: "AUTH_SUCCESS",
+        payload: {
+          user: {
+            ...userProfile,
+            id: userProfile._id || userProfile.id
+          }
+        }
+      })
+    } catch { logout() }
+  }
 
   const login = async (email: string, pin: string) => {
     dispatch({ type: "SET_LOADING", payload: true })
@@ -799,34 +822,115 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetch(`${API_BASE_URL}/inventory/products/${id}`, { method: "DELETE", headers: getHeaders() })
   }
 
+
+  //   const checkoutCart = async () => {
+  //     dispatch({ type: "SET_LOADING", payload: true })
+  //     try {
+
+  //       const cartObject = state.cart.reduce((acc, item) => {
+  //       acc[item.product.id] = item.quantity;
+  //       return acc;
+  //     }, {} as Record<string, number>);
+
+  //       // The checkout logic now sends the explicit unit_sold type
+  //       const response = await fetch(`${API_BASE_URL}/pos/checkout`, {
+  //         method: "POST",
+  //         headers: getHeaders(),
+  //        body: JSON.stringify({ 
+  //         cart: cartObject, // Sending as an object
+  //         totalAmount: state.cart.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0)
+  //       })
+  //     })
+  //       const data = await response.json()
+  //     if (response.ok && data.status === "success") {
+  //       dispatch({ type: "CLEAR_CART" })
+  //       return { status: "success", orderId: data.orderId }
+  //     }
+  //     throw new Error(data.message || "Checkout failed")
+  //   } finally { 
+  //     dispatch({ type: "SET_LOADING", payload: false }) 
+  //   }
+  // }
+
+  //Discount part change//
   const checkoutCart = async () => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-
+      // 1. Map cart items into the structured object payload expected by your backend
       const cartObject = state.cart.reduce((acc, item) => {
-      acc[item.product.id] = item.quantity;
-      return acc;
-    }, {} as Record<string, number>);
+        acc[item.product.id] = {
+          quantity: item.quantity,
+          discountedPrice: item.customPrice !== undefined && item.customPrice !== null ? item.customPrice : Number(item.product.price)
+        };
+        return acc;
+      }, {} as Record<string, { quantity: number; discountedPrice: number }>);
 
-      // The checkout logic now sends the explicit unit_sold type
+      // 2. Calculate the final absolute total reflecting all custom overrides
+      const calculatedTotalAmount = state.cart.reduce((sum, item) => {
+        const activePrice = item.customPrice !== undefined ? item.customPrice : Number(item.product.price);
+        return sum + (activePrice * item.quantity);
+      }, 0);
+      
+
       const response = await fetch(`${API_BASE_URL}/pos/checkout`, {
         method: "POST",
         headers: getHeaders(),
-       body: JSON.stringify({ 
-        cart: cartObject, // Sending as an object
-        totalAmount: state.cart.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0)
+        body: JSON.stringify({
+          cart: cartObject,
+          totalAmount: calculatedTotalAmount
+        })
       })
-    })
+
       const data = await response.json()
-    if (response.ok && data.status === "success") {
-      dispatch({ type: "CLEAR_CART" })
-      return { status: "success", orderId: data.orderId }
+      if (response.ok && data.status === "success") {
+        dispatch({ type: "CLEAR_CART" })
+        return { status: "success", orderId: data.orderId }
+      }
+      throw new Error(data.message || "Checkout failed")
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false })
     }
-    throw new Error(data.message || "Checkout failed")
-  } finally { 
-    dispatch({ type: "SET_LOADING", payload: false }) 
   }
-}
+  //-------------------//
+
+
+  const applyDiscountToCartItem = (productId: string, value: number, type: 'percent' | 'flat' | 'clear') => {
+  if (type === 'clear') {
+    dispatch({
+      type: "UPDATE_CART_DISCOUNT",
+      payload: { productId, discountType: 'flat', discountValue: 0, customPrice: undefined }
+    });
+    return;
+  }
+
+  // ✨ FIX: Explicitly find the 'main' unit item to match what POSView is using
+    const cartItem = state.cart.find(item => item.product.id === productId && item.unit_sold === 'main');
+    if (!cartItem) return;
+
+    const originalPrice = Number(cartItem.product.price);
+    let customPrice = originalPrice;
+
+    if (type === 'percent') {
+      customPrice = originalPrice - (originalPrice * (value / 100));
+    } else if (type === 'flat') {
+      customPrice = originalPrice - value;
+    }
+
+    // Floor the custom price to eliminate floating point decimals before saving to global state
+    const finalizedCustomPrice = Math.max(0, Math.floor(customPrice));
+
+    dispatch({
+      type: "UPDATE_CART_DISCOUNT",
+      payload: { 
+        productId, 
+        discountType: type, 
+        discountValue: value, 
+        customPrice: finalizedCustomPrice 
+      }
+    });
+  };
+
+// Remember to add "applyDiscountToCartItem" down into your <AppContext.Provider value={{...}}> statement at the bottom of the file!
 
   const confirmPayment = async (orderId: string, paymentDetails: any) => {
     dispatch({ type: "SET_LOADING", payload: true })
@@ -863,23 +967,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 
   const addPayment = async (orderId: string, paymentDetails: { amountPaid: number, paymentMethod: string }) => {
-  dispatch({ type: "SET_LOADING", payload: true })
-  try {
-    const response = await fetch(`${API_BASE_URL}/pos/orders/${orderId}/add-payment`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(paymentDetails)
-    })
-    return await response.json()
-  } finally { dispatch({ type: "SET_LOADING", payload: false }) }
-}
+    dispatch({ type: "SET_LOADING", payload: true })
+    try {
+      const response = await fetch(`${API_BASE_URL}/pos/orders/${orderId}/add-payment`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(paymentDetails)
+      })
+      return await response.json()
+    } finally { dispatch({ type: "SET_LOADING", payload: false }) }
+  }
 
   return (
     <AppContext.Provider value={{
       state, dispatch, login, fetchProfile, logout, fetchInventory,
       createProduct, updateProduct, deleteProduct, checkoutCart,
       confirmPayment, addPayment, fetchReceiptsByDate, printReceiptDirectly,
-      fetchTransactionDetail
+      fetchTransactionDetail, applyDiscountToCartItem
     }}>
       {children}
     </AppContext.Provider>

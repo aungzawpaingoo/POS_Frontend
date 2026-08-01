@@ -152,7 +152,7 @@ export default function LoginView() {
                 fontSize: '0.85rem'
               }}
             >
-              အီးမေးလ်လိပ်စာ (Email)
+              သုံးစွဲသူအမည် (Username)
             </Typography>
             <TextField
               variant="filled"
